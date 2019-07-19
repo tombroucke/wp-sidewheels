@@ -12,7 +12,7 @@
     "autoload": {
         "files": [
             "src/includes/functions.php",
-            "src/frontend-apps.php"
+            "src/sidewheels.php"
         ]
     },
     "version": "1.0.0"

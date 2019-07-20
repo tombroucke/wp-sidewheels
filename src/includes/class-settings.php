@@ -1,13 +1,13 @@
 <?php
-class WP_Sidewheels_Settings {
+namespace SideWheels;
 
-	private $config_path;
-	private $errors = false;
+class Settings {
+
+	private $config_path = WP_SIDEWHEELS_CONFIG;
 	private $config = false;
 
-	public function __construct($config_path) {
+	public function __construct() {
 
-		$this->config_path = $config_path;
 		$this->init();
 
 	}
@@ -23,16 +23,19 @@ class WP_Sidewheels_Settings {
 		}
 
 		$this->config = include( $this->config_path );
+
+	}
+
+	public function validate() {
 		$errors = $this->check_config();
 		if( !empty( $errors ) ){
 			foreach ($errors as $key => $error) {
-				$this->errors[] = array(
-					'title' 	=> $error
-				);
+				throw new Exception($error, 1);
+				
 			}
 			return false;
 		}
-
+		return true;
 	}
 
 	private function check_config(){
@@ -43,26 +46,22 @@ class WP_Sidewheels_Settings {
 			foreach ( $this->config['endpoints'] as $name => $endpoint ) {
 				if( isset( $endpoint['is_home'] ) && ++$home_count > 1 ){
 
-					$errors[] = __( 'There are multiple endpoints set as home', 'frontend-app' );
+					$errors[] = __( 'There are multiple endpoints set as home in Sidewheels\' config file', 'frontend-app' );
 
 				}
 			}
 		}
 		else{
-			$errors[] = __( 'Endpoints are not defined', 'frontend-app' );
+			$errors[] = __( 'Endpoints are not defined in Sidewheels\' config file', 'frontend-app' );
 		}
 		if( !isset( $this->config['post_types'] ) ){
-			$errors[] = __( 'post_types is not defined', 'frontend-app' );
+			$errors[] = __( 'post_types is not defined in Sidewheels\' config file', 'frontend-app' );
 		}
 		if( !isset( $this->config['text-domain'] ) ){
-			$errors[] = __( 'text-domain is not defined', 'frontend-app' );
+			$errors[] = __( 'text-domain is not defined in Sidewheels\' config file', 'frontend-app' );
 		}
 		return $errors;
 
-	}
-
-	public function errors() {
-		return $this->errors;
 	}
 
 	public function get( $parameter = null ) {

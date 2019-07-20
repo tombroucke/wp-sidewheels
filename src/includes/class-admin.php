@@ -1,11 +1,13 @@
 <?php
-class Sidewheels_Admin{
+namespace SideWheels;
+
+class Admin{
 
 	private $settings;
 
 	function __construct(){
 
-		$this->settings = wp_frontend_app()->settings();
+		$this->settings = wp_sidewheels()->settings();
 		$this->custom_post_types_meta_boxes();
 		add_action( 'load-nav-menus.php', array( $this, 'meta_boxes' ) );
 		
@@ -13,7 +15,7 @@ class Sidewheels_Admin{
 	}
 
 	public function meta_boxes(){
-		add_meta_box( 'frontend-app-metabox', __( 'Frontend App Links', 'wp-frontend-app' ), array( $this, 'box_callback'), 'nav-menus', 'side', 'default' );
+		add_meta_box( 'sidewheels-metabox', __( 'Sidewheels Links', $this->settings->get('text-domain') ), array( $this, 'box_callback'), 'nav-menus', 'side', 'default' );
 
 	}
 
@@ -22,19 +24,19 @@ class Sidewheels_Admin{
 		$post_types = $this->settings->get('post_types');
 		
 		foreach ($post_types as $key => $post_type) {
-			add_meta_box( 'fa_meta', __( 'Meta', 'drivingschool' ), array( $this, 'display_meta_box' ), $key, 'advanced', 'default', null );
+			add_meta_box( 'sidewheels_meta', __( 'Information', $this->settings->get('text-domain') ), array( $this, 'display_meta_box' ), $key, 'side', 'high', null );
 		}
 
 	}
 
 	public function box_callback(){
-
+		// TODO: make menus recursive
 		$pages = $this->settings->get('endpoints');
 		$count = 1;
 		?>
-		<div id="posttype-frontend_app" class="posttypediv">
-			<div id="tabs-panel-frontend_app" class="tabs-panel tabs-panel-active">
-				<ul id="frontend_app-checklist" class="categorychecklist form-no-clear">
+		<div id="posttype-sidewheels" class="posttypediv">
+			<div id="tabs-panel-sidewheels" class="tabs-panel tabs-panel-active">
+				<ul id="sidewheels-checklist" class="categorychecklist form-no-clear">
 					<?php foreach ( $pages as $name => $page ): ?>
 						<li>
 							<label class="menu-item-title">
@@ -67,10 +69,10 @@ class Sidewheels_Admin{
 			</div>
 			<p class="button-controls">
 				<span class="list-controls">
-					<a href="/wp-admin/nav-menus.php?frontend-app-tab=all&amp;selectall=1#frontend-app" class="select-all aria-button-if-js" role="button"><?php _e( 'Select all' ); ?></a>
+					<a href="/wp-admin/nav-menus.php?sidewheels-tab=all&amp;selectall=1#sidewheels" class="select-all aria-button-if-js" role="button"><?php _e( 'Select all' ); ?></a>
 				</span>
 				<span class="add-to-menu">
-					<input type="submit" class="button-secondary submit-add-to-menu right" value="<?php _e( 'Add to Menu' ); ?>" name="add-post-type-menu-item" id="submit-posttype-frontend_app">
+					<input type="submit" class="button-secondary submit-add-to-menu right" value="<?php _e( 'Add to Menu' ); ?>" name="add-post-type-menu-item" id="submit-posttype-sidewheels">
 					<span class="spinner"></span>
 				</span>
 			</p>
@@ -80,37 +82,8 @@ class Sidewheels_Admin{
 
 	public function display_meta_box(){
 
-		$post_type = get_post_type( get_the_ID() );
-		$meta = get_post_meta( get_the_ID() );
-		unset( $meta['_edit_lock'] );
-		unset( $meta['_edit_last'] );
-		?>
-		<table class="widefat fixed striped">
-			<?php foreach ($meta as $key => $value): ?>
-				<tr>
-					<th><?php echo apply_filters( 'fa_' . $post_type . '_meta_key', $key); ?></th>
-					<td>
-						<ul>
-							<?php foreach( $value as $thevalue ): ?>
-								<?php if( !$this->is_serial( $thevalue ) ): ?>
-								<li><?php echo apply_filters( 'fa_' . $post_type . '_meta_value', $thevalue, $key ); ?></li>
-								<?php else: ?>
-									<?php foreach( unserialize( $thevalue ) as $serialized_key => $serizalized_value ): ?>
-										<li>
-											<?php if( is_array( $serizalized_value ) ): ?>
-												<?php print_r( apply_filters( 'fa_' . $post_type . '_meta_serialized_key', $serizalized_value, $key ) ); ?>
-											<?php else: ?>
-											<?php echo apply_filters( 'fa_' . $post_type . '_meta_serialized_key', $serialized_key, $key ); ?>: <?php echo apply_filters( 'fa_' . $post_type . '_meta_value', $serizalized_value, $key ); ?></li>
-										<?php endif; ?>
-									<?php endforeach; ?>
-								<?php endif; ?>
-							<?php endforeach; ?>
-						</ul>				
-					</td>
-				</tr>
-			<?php endforeach; ?>
-		</table>
-		<?php
+		// TODO: Add a real message
+		echo 'This post type is managed by WP Sidewheels';
 
 	}
 

@@ -8,7 +8,9 @@
             "email": "tom@tombroucke.be"
         }
     ],
-    "require": {},
+    "require": {
+        "stoutlogic/acf-builder": "^1.8"
+    },
     "autoload": {
         "files": [
             "src/includes/functions.php",

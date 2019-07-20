@@ -1,16 +1,18 @@
 <?php
-class WP_Sidewheels_Template_Controllers
+namespace SideWheels;
+
+class Template_Controllers
 {
 	private $settings;
-	private $fa_endpoint;
-	private $fa_object_id;
+	private $sidewheels_endpoint;
+	private $sidewheels_object_id;
 
 	public function __construct()
 	{
 
-		$this->settings = wp_frontend_app()->settings();
-		$this->fa_endpoint 	= $this->settings->query_var('fa_endpoint');
-		$this->fa_object_id = $this->settings->query_var('fa_object_id');
+		$this->settings = wp_sidewheels()->settings();
+		$this->sidewheels_endpoint 	= $this->settings->query_var('sidewheels_endpoint');
+		$this->sidewheels_object_id = $this->settings->query_var('sidewheels_object_id');
 
 		add_action('frontend_app_custom_template_content', array( $this, 'custom_template_content' ));
 		add_filter('template_include', array( $this, 'custom_template_include' ), 9999);
@@ -19,10 +21,10 @@ class WP_Sidewheels_Template_Controllers
 
 	public function custom_template_content(){
 
-		$frontend_app_object_id = $this->fa_object_id;
+		$sidewheels_object_id = $this->sidewheels_object_id;
 
-		$template_path 	= $this->settings->get_first_matching('endpoints', 'template', $this->fa_endpoint);
-		$controller 	= $this->settings->get_first_matching('endpoints', 'controller', $this->fa_endpoint);
+		$template_path 	= $this->settings->get_first_matching('endpoints', 'template', $this->sidewheels_endpoint);
+		$controller 	= $this->settings->get_first_matching('endpoints', 'controller', $this->sidewheels_endpoint);
 
         // Include controller
 		if ($controller) {
@@ -65,10 +67,10 @@ class WP_Sidewheels_Template_Controllers
 	public function custom_template_include($template)
 	{
 
-		if( $this->fa_object_id ) {
-			$post_type = $this->settings->get_first_matching('endpoints', 'post_type', $this->fa_endpoint);
-			if( $post_type && $post_type != get_post_type($this->fa_object_id) ) {
-				fa_trigger_404();
+		if( $this->sidewheels_object_id ) {
+			$post_type = $this->settings->get_first_matching('endpoints', 'post_type', $this->sidewheels_endpoint);
+			if( $post_type && $post_type != get_post_type($this->sidewheels_object_id) ) {
+				wp_sidewheels_trigger_404();
 			}
 		}
 

@@ -1,11 +1,28 @@
 <?php
-class WP_Sidewheels_Routes
+namespace SideWheels;
+
+class Routes
 {
 	private $settings;
 
 	public function __construct()
 	{
-		$this->settings = wp_frontend_app()->settings();
+		$this->settings = wp_sidewheels()->settings();
+		add_filter('rewrite_rules_array', array($this, 'kill_feed_rewrites'));
+	}
+
+	public function kill_feed_rewrites($rules){
+
+		$show_rules = filter_input(INPUT_GET, 'show_rules', FILTER_VALIDATE_BOOLEAN);
+
+		if( $show_rules ) {
+			echo '<pre>';
+			print_r($rules);
+			echo '</pre>';
+			die();
+		}
+
+		return $rules;
 	}
 
 	public function create()
@@ -21,7 +38,7 @@ class WP_Sidewheels_Routes
 
 			$slug = '([0-9]+)';
 
-			// TODO translate endpoints
+			// TODO: translate endpoints
 
 			if (!isset($endpoint['public']) || $endpoint['public']) {
 
@@ -46,7 +63,7 @@ class WP_Sidewheels_Routes
 						$hierachystring = (!empty($hierachy) ? rtrim(implode('/', $hierachy), '/') . '/' : '');
 						$endpoint_translated_name = __($slug, $this->settings->get('text-domain'));
 
-						add_rewrite_rule($translated_parentstring . $endpoint_translated_name . '/?$', 'index.php?fa_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $hierachystring . $endpoint_name), '/')) . '&fa_object_id=$matches[1]&lang=' . $language_code, 'top');
+						add_rewrite_rule($translated_parentstring . $endpoint_translated_name . '/?$', 'index.php?sidewheels_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $hierachystring . $endpoint_name), '/')) . '&sidewheels_object_id=$matches[1]&lang=' . $language_code, 'top');
 
 						$sitepress->switch_lang($current_language, true);
 					}
@@ -71,7 +88,7 @@ class WP_Sidewheels_Routes
 					$translated_parentstring = (!empty($translated_parents) ? rtrim(implode('/', $translated_parents), '/') . '/' : '');
 					$hierachystring = (!empty($hierachy) ? rtrim(implode('/', $hierachy), '/') . '/' : '');
 
-					add_rewrite_rule('^' . $translated_parentstring . $slug . '/?$', 'index.php?fa_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $hierachystring . $endpoint_name), '/')) . '&fa_object_id=$matches[1]', 'top');
+					add_rewrite_rule('^' . $translated_parentstring . $slug . '/?$', 'index.php?sidewheels_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $hierachystring . $endpoint_name), '/')) . '&sidewheels_object_id=$matches[1]', 'top');
 
 					if (!isset($parents[$endpoint_name])) {
 						$parents[] = $slug;

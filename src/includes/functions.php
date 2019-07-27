@@ -2,6 +2,9 @@
 use \SideWheels\WP_Sidewheels;
 
 if( !function_exists('wp_sidewheels_trigger_404') ) {
+	/**
+	 * Display WordPress' 404 page
+	 */
 	function wp_sidewheels_trigger_404() {
 		global $wp_query;
 		$wp_query = new WP_Query();
@@ -13,6 +16,10 @@ if( !function_exists('wp_sidewheels_trigger_404') ) {
 }
 
 if(!function_exists('wp_sidewheels')) {
+	/**
+	 * Get an instance of WP_Sidewheels
+	 * @return \Sidewheels\WP_Sidewheels
+	 */
 	function wp_sidewheels()
 	{
 		return WP_Sidewheels::get_instance();

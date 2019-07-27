@@ -1,8 +1,15 @@
 <?php
 namespace SideWheels;
 
+/**
+ * Logic for administration screens
+ */
 class Admin{
 
+    /**
+     * Settings
+     * @var \Sidewheels\Settings
+     */
 	private $settings;
 
 	function __construct(){
@@ -14,11 +21,17 @@ class Admin{
 
 	}
 
+	/**
+	 * Add a meta box to nav-menus.php
+	 */
 	public function meta_boxes(){
 		add_meta_box( 'sidewheels-metabox', __( 'Sidewheels Links', $this->settings->get('text-domain') ), array( $this, 'box_callback'), 'nav-menus', 'side', 'default' );
 
 	}
 
+	/**
+	 * Add a meta box to every post type created by Sidewheels
+	 */
 	public function custom_post_types_meta_boxes(){
 
 		$post_types = $this->settings->get('post_types');
@@ -29,6 +42,9 @@ class Admin{
 
 	}
 
+	/**
+	 * Render meta box on nav-menus.php
+	 */
 	public function box_callback(){
 		// TODO: make menus recursive
 		$pages = $this->settings->get('endpoints');
@@ -40,11 +56,11 @@ class Admin{
 					<?php foreach ( $pages as $name => $page ): ?>
 						<li>
 							<label class="menu-item-title">
-								<input type="checkbox" class="menu-item-checkbox" name="menu-item[-<?php echo $count; ?>][menu-item-object-id]" value="-<?php echo $count; ?>"> <?php echo ucfirst($page['slug']) ?>
+								<input type="checkbox" class="menu-item-checkbox" name="menu-item[-<?php echo $count; ?>][menu-item-object-id]" value="-<?php echo $count; ?>"> <?php echo $page['label'] ?>
 							</label>
 							<input type="hidden" class="menu-item-type" name="menu-item[-<?php echo $count; ?>][menu-item-type]" value="custom">
-							<input type="hidden" class="menu-item-title" name="menu-item[-<?php echo $count; ?>][menu-item-title]" value="<?php echo $page['plural_label'] ?>">
-							<input type="hidden" class="menu-item-url" name="menu-item[-<?php echo $count; ?>][menu-item-url]" value="<?php printf( '%s/%s', home_url(), $page['plural_slug'] ); ?>">
+							<input type="hidden" class="menu-item-title" name="menu-item[-<?php echo $count; ?>][menu-item-title]" value="<?php echo $page['label'] ?>">
+							<input type="hidden" class="menu-item-url" name="menu-item[-<?php echo $count; ?>][menu-item-url]" value="<?php printf( '%s/%s', home_url(), $page['slug'] ); ?>">
 							<?php if( isset( $page['children'] ) ): ?>
 								<ul>
 									<?php foreach ( $page['children'] as $additional_page ): ?>
@@ -52,10 +68,10 @@ class Admin{
 											<?php $count++; ?>
 											<li>
 												<label class="menu-item-title">
-													<input type="checkbox" class="menu-item-checkbox" name="menu-item[-<?php echo $count; ?>][menu-item-object-id]" value="-<?php echo $count; ?>"> <?php echo ucfirst( $additional_page['slug'] ); ?>
+													<input type="checkbox" class="menu-item-checkbox" name="menu-item[-<?php echo $count; ?>][menu-item-object-id]" value="-<?php echo $count; ?>"> <?php echo ucfirst( $additional_page['label'] ); ?>
 												</label>
 												<input type="hidden" class="menu-item-type" name="menu-item[-<?php echo $count; ?>][menu-item-type]" value="custom">
-												<input type="hidden" class="menu-item-title" name="menu-item[-<?php echo $count; ?>][menu-item-title]" value="<?php echo ucfirst( $additional_page['slug'] ); ?>">
+												<input type="hidden" class="menu-item-title" name="menu-item[-<?php echo $count; ?>][menu-item-title]" value="<?php echo ucfirst( $additional_page['label'] ); ?>">
 												<input type="hidden" class="menu-item-url" name="menu-item[-<?php echo $count; ?>][menu-item-url]" value="<?php printf( '%s/%s/%s', home_url(), $name, $additional_page['slug'] ); ?>">
 											</li>
 										<?php endif; ?>
@@ -80,15 +96,14 @@ class Admin{
 		<?php
 	}
 
+	/**
+	 * Render meta box on each post type created by Sidewheels
+	 */
 	public function display_meta_box(){
 
 		// TODO: Add a real message
 		echo 'This post type is managed by WP Sidewheels';
 
-	}
-
-	public static function is_serial($string) {
-	    return (@unserialize($string) !== false);
 	}
 
 }

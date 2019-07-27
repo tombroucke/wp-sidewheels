@@ -1,8 +1,16 @@
 <?php 
 namespace SideWheels;
 
+/**
+ * Add Custom Post Type for each post type defined in config.php
+ */
 class Cpts
 {
+
+    /**
+     * Settings
+     * @var \Sidewheels\Settings
+     */
     private $settings;
 
     public function __construct()
@@ -11,6 +19,12 @@ class Cpts
         add_filter('post_type_link', array( $this, 'custom_post_type_link' ), 10, 2);
     }
 
+    /**
+     * Change custom post type link
+     * @param  string $url  Default url
+     * @param  \WP_Post $post
+     * @return string Custom url
+     */
     public function custom_post_type_link($url, $post)
     {
         $post_type 	= get_post_type($post);
@@ -21,6 +35,9 @@ class Cpts
         return $url;
     }
 
+    /**
+     * Fetch all post types defined in config & call add_post_type
+     */
     public function create_post_types()
     {
         $post_types = $this->settings->get('post_types');
@@ -32,6 +49,9 @@ class Cpts
         }
     }
 
+    /**
+     * Fetch all taxonomies defined in config & call add_taxonomy
+     */
     public function create_taxonomies()
     {
         $taxonomies = $this->settings->get('taxonomies');
@@ -42,6 +62,11 @@ class Cpts
         }
     }
 
+    /**
+     * Register post type
+     * @param string $post_type
+     * @param array  $args
+     */
     private function add_post_type($post_type, $args = array())
     {
         $plural_name = $args['labels']['plural_name'];
@@ -88,6 +113,14 @@ class Cpts
         register_post_type($post_type, $args);
     }
 
+    /**
+     * [add_taxonomy description]
+     * @param string $name
+     * @param string $singular_name
+     * @param string $plural_name
+     * @param array  $post_type
+     * @param array  $options
+     */
     private function add_taxonomy($name, $singular_name, $plural_name, $post_type = array(), $options = array())
     {
         $labels = array(

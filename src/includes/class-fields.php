@@ -1,40 +1,64 @@
 <?php
 
+namespace Sidewheels;
 use StoutLogic\AcfBuilder\FieldsBuilder;
+use StoutLogic\AcfBuilder\GroupBuilder;
 
+/**
+ * Add ACF support for each field defined in config.php
+ */
 class Fields{
 
+	/**
+	 * Fetch all post types & add fields
+	 */
 	function __construct(){
-		
-		$background = new FieldsBuilder('background');
-		$background
-		    ->addTab('Background')
-		    ->addImage('background_image')
-		    ->addTrueFalse('fixed')
-		        ->instructions("Check to add a parallax effect where the background image doesn't move when scrolling")
-		    ->addColorPicker('background_color');
 
-		$banner = new FieldsBuilder('banner');
-		$banner
-		    ->addTab('Content')
-		    ->addText('title')
-		    ->addWysiwyg('content')
-		    ->addFields($background)
-		    ->setLocation('post_type', '==', 'page');
+        $post_types = wp_sidewheels()->settings()->get('post_types');
+        if ($post_types) {
+            foreach ($post_types as $post_type_name => $post_type) {
+            	if( isset( $post_type['field_groups'] ) ) {
+                	$this->build_fields($post_type_name, $post_type);
+            	}
+            }
+        }
 
-		$section = new FieldsBuilder('section');
-		$section
-		    ->addTab('Content')
-		    ->addText('section_title')
-		    ->addRepeater('columns', ['min' => 1, 'layout' => 'block'])
-		        ->addTab('Content')
-		        ->addText('title')
-		        ->addWysiwyg('content')
-		        ->addFields($background)
-		        ->endRepeater()
-		    ->addFields($background)
-		    ->setLocation('post_type', '==', 'page');
+	}
 
+	/**
+	 * Create field group
+	 * @param  string $post_type_name
+	 * @param  array $post_type
+	 */
+	private function build_fields($post_type_name, $post_type) {
+		foreach ($post_type['field_groups'] as $id => $field_group) {
+			$group_name = apply_filters( 'sidewheels_acf_group_name', $id, $post_type_name, $field_group );
+			$builder = new FieldsBuilder($group_name);
+			$builder->setGroupConfig('key', $this->spaces_to_underscores($post_type_name . ' ' . $id));
+
+			foreach ($field_group as $key => $field) {
+				$method = 'add' . $field['type'];
+				$args = ( isset($field['args']) ? $field['args'] : array() );
+				$args['name'] = $this->spaces_to_underscores($post_type_name . ' ' . $id . ' ' . $field['name']);
+				$newfield = $builder->addField($field['name'], $field['type'], $args);
+				if( isset($field['instructions']) ) {
+					$newfield->setInstructions($field['instructions']);
+				}
+			}
+
+			$builder->setLocation('post_type', '==', $post_type_name);
+
+		    acf_add_local_field_group($builder->build());
+		}
+	}
+
+	/**
+	 * Replace spaces by underscores
+	 * @param  string $name
+	 * @return string
+	 */
+	private function spaces_to_underscores($name){
+        return strtolower(str_replace(' ', '_', $name));
 	}
 
 }

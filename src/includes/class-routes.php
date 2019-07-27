@@ -1,36 +1,39 @@
 <?php
 namespace SideWheels;
 
+/**
+ * Create routes to each endpoint in config.php
+ */
 class Routes
 {
-	private $settings;
+
+    /**
+     * Settings
+     * @var \Sidewheels\Settings
+     */
+    private $settings;
 
 	public function __construct()
 	{
 		$this->settings = wp_sidewheels()->settings();
-		add_filter('rewrite_rules_array', array($this, 'kill_feed_rewrites'));
 	}
 
-	public function kill_feed_rewrites($rules){
-
-		$show_rules = filter_input(INPUT_GET, 'show_rules', FILTER_VALIDATE_BOOLEAN);
-
-		if( $show_rules ) {
-			echo '<pre>';
-			print_r($rules);
-			echo '</pre>';
-			die();
-		}
-
-		return $rules;
-	}
-
+	/**
+	 * Create endpoint for each endpoint in Sidewheels config file
+	 */
 	public function create()
 	{
-		$this->iterate_children($this->settings->get('endpoints'));
+		$this->add_endpoints($this->settings->get('endpoints'));
 	}
 
-	private function iterate_children($endpoints, $parents = array(), $hierachy = array(), $depth = 0)
+	/**
+	 * Iterate endpoints & add rewrite rule for each one
+	 * @param array  $endpoints
+	 * @param array   $parents
+	 * @param array   $hierachy
+	 * @param integer $depth
+	 */
+	private function add_endpoints($endpoints, $parents = array(), $hierachy = array(), $depth = 0)
 	{
 		$depth++;
 
@@ -98,7 +101,7 @@ class Routes
 			}
 
 			if (isset($endpoint['children'])) {
-				$this->iterate_children($endpoint['children'], $parents, $hierachy, $depth);
+				$this->add_endpoints($endpoint['children'], $parents, $hierachy, $depth);
 			} else {
 				$depth--;
 			}

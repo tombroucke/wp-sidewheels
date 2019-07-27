@@ -1,9 +1,22 @@
 <?php
 namespace SideWheels;
 
+/**
+ * Entry file for WP Sidewheels
+ */
+
 class WP_Sidewheels
 {
+    /**
+     * Settings
+     * @var Settings Object
+     */
     private $settings;
+
+    /**
+     * WP_Sidewheels instance
+     * @var Instance of WP_Sidewheels
+     */
     private static $instance = null;
 
     public static function get_instance()
@@ -15,14 +28,23 @@ class WP_Sidewheels
         return self::$instance;
     }
 
+    /**
+     * Add includes, init package & assign settings
+     */
     public function __construct()
     {
         $this->includes();
         $this->init();
+
+        $this->settings = new Settings();
     }
 
+    /**
+     * Include files
+     */
     private function includes()
     {
+
         // Abstracts
         include 'includes/abstracts/abstract-class-post-type.php';
         include 'includes/abstracts/abstract-class-post-type-controller.php';
@@ -30,31 +52,35 @@ class WP_Sidewheels
         // Classes
         include 'includes/class-authenticator.php';
         include 'includes/class-admin.php';
-        include 'includes/class-fields.php';
-        include 'includes/class-settings.php';
         include 'includes/class-custom-post-types.php';
+        include 'includes/class-fields.php';
         include 'includes/class-routes.php';
+        include 'includes/class-settings.php';
         include 'includes/class-template-controllers.php';
     }
 
-    private function init()
+    /**
+     * Add actions and filters
+     */
+    public function init()
     {
-        // Validate config file
-        $this->settings = new Settings();
-        if (!$this->settings->validate()) {
-            return;
-        }
-
         add_filter('query_vars', array( $this, 'custom_query_vars' ));
+        
+        add_action('template_redirect', array( $this, 'frontend_init' ), 0);
 
         add_action('admin_init', array( $this, 'admin_init' ));
-        add_action('template_redirect', array( $this, 'frontend_init' ), 0);
 
         add_action('init', array($this, 'create_routes'));
         add_action('init', array($this, 'create_post_types'));
-        add_action('init', array($this, 'add_fields'));
+
+        add_action('acf/init', array($this, 'add_fields'));
     }
 
+    /**
+     * Add query args for custom routing
+     * @param  Array $vars
+     * @return Array
+     */
     public function custom_query_vars($vars)
     {
         $vars[] = 'lang';
@@ -63,33 +89,42 @@ class WP_Sidewheels
         return $vars;
     }
 
+    /**
+     * Load the Admin class
+     */
     public function admin_init()
     {
         new Admin();
     }
 
-    public function frontend_init()
-    {
-        $authenticator = new Authenticator();
-        switch ($authenticator->authentication_status()) {
-            case 'loggedout':
-                auth_redirect();
-                exit();
-                break;
-            case 'unauthenticated':
-                break;
-            case 'authenticated':
-                new Template_Controllers();
-                break;
+    /**
+     * If authenticated, load Sidewheels templates
+     */
+    public function frontend_init() {
+        if( !$this->settings->is_sidewheels_page() ) {
+            return;
         }
+        // Check if user is authenticated
+        $this->authenticator = new Authenticator();
+        if( !$this->authenticator->is_authenticated() ) {
+            auth_redirect();
+        }
+
+        new Template_Controllers();
     }
 
+    /**
+     * Create routes
+     */
     public function create_routes()
     {
         $routes = new Routes();
         $routes->create();
     }
 
+    /**
+     * Create post types & taxonomies
+     */
     public function create_post_types()
     {
         $cpts = new Cpts();
@@ -97,15 +132,25 @@ class WP_Sidewheels
         $cpts->create_taxonomies();
     }
 
+    /**
+     * Add ACF support
+     */
     public function add_fields() {
-        $fields = new \Fields();
+        new Fields();
     }
 
+    /**
+     * Get Sidewheels settings
+     * @return Object Settings
+     */
     public function settings()
     {
         return $this->settings;
     }
 
+    /**
+     * Add roles
+     */
     public function add_roles()
     {
         foreach ($this->settings()->get('roles') as $role_name => $role) {
@@ -113,6 +158,9 @@ class WP_Sidewheels
         }
     }
 
+    /**
+     * Remove roles
+     */
     public function remove_roles()
     {
         foreach ($this->settings()->get('roles') as $role_name => $role) {
@@ -122,13 +170,21 @@ class WP_Sidewheels
         }
     }
 
+    /**
+     * Create routes, add roles & flush rewrite rules on installation
+     */
     public function install()
     {
+        $settings = new Settings();
+        $this->settings->validate();
         $this->create_routes();
         $this->add_roles();
         flush_rewrite_rules();
     }
 
+    /**
+     * Remove roles on uninstall
+     */
     public function uninstall()
     {
         $this->remove_roles();

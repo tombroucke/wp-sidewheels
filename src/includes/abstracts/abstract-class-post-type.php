@@ -1,28 +1,71 @@
 <?php
-abstract class FA_Post_Type
+/**
+ * Logic for Sidewheels post types
+ */
+abstract class Sidewheels_Post_Type
 {
+    /**
+     * Post ID
+     * @var integer
+     */
     protected $ID;
 
+    /**
+     * Define ID
+     * @param integer $id Post ID
+     */
     public function __construct($id)
     {
         $this->ID = $id;
     }
 
+    /**
+     * Returns the post ID
+     * @return integer Post ID
+     */
+    public function get_ID()
+    {
+        return $this->ID;
+    }
+
+    /**
+     * Get post meta
+     * @param  string $key
+     * @return string|boolean
+     */
     public function get($key)
     {
         return get_post_meta($this->get_ID(), $key, true);
     }
 
+    /**
+     * Set post meta
+     * @param integer $key
+     * @param string $value
+     * @return boolean
+     */
     public function set($key, $value)
     {
         return update_post_meta($this->get_ID(), $key, $value);
     }
 
+    /**
+     * Add post meta
+     * @param integer $key
+     * @param string $value
+     * @return boolean
+     */
     public function add_meta($key, $value)
     {
         return add_post_meta($this->get_ID(), $key, $value);
     }
 
+    /**
+     * Remove post meta
+     * @param integer $key
+     * @param string|null $value
+     * @return boolean
+     */
     public function remove_meta($key, $value = null)
     {
         if ($value) {
@@ -32,27 +75,38 @@ abstract class FA_Post_Type
         }
     }
 
-    public function get_ID()
-    {
-        return $this->ID;
-    }
-
+    /**
+     * Get post type
+     * @return string
+     */
     public function get_post_type()
     {
         return $this->post_type;
     }
 
+    /**
+     * Get post title
+     * @return string
+     */
     public function get_title()
     {
         return get_the_title($this->get_ID());
     }
 
+    /**
+     * Get post content
+     * @return string
+     */
     public function get_content()
     {
         $post_object = get_post($this->get_ID());
         return $post_object->post_content;
     }
 
+    /**
+     * Get post url
+     * @return string
+     */
     public function get_url(){
     	return get_the_permalink($this->get_ID());
     }

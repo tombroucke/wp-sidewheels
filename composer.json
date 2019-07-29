@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "stoutlogic/acf-builder": "^1.8",
+        "stoutlogic/acf-builder": "^1.8"
     },
     "require-dev": {
         "phpunit/phpunit": "^8"

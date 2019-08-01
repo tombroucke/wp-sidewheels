@@ -50,15 +50,16 @@ class Template_Controllers
         $template_path 			= $this->settings->get_first_matching('endpoints', 'template', $this->sidewheels_endpoint);
         $controller 			= $this->settings->get_first_matching('endpoints', 'controller', $this->sidewheels_endpoint);
 
-        // Include controller
         if ($controller) {
+            // Load controller from defined path
             $file = sprintf('%s/%s.php', $this->settings->get('controllers'), $controller);
             if (file_exists($file)) {
                 include_once($file);
             } else {
-                throw new Exception(sprintf('Controller does not exist at %s.', $file), 1);
+                throw new \Exception(sprintf('Controller does not exist at %s.', $file), 1);
             }
         } else {
+            // Load controller from default path
             $template_path_array = explode('/', $template_path);
 
             end($template_path_array);
@@ -69,18 +70,32 @@ class Template_Controllers
             if (file_exists($file)) {
                 include_once($file);
             }
+            else {
+                // No controller found, only load template
+                $file = apply_filters('sidewheels_partial_template', sprintf('%s/%s.twig', $this->settings->get('templates'), $template_path), $template_path, $this->settings->get('templates'));
+                if( $file ) {
+                    if (file_exists($file)) {
+                        $template = $file;
+                    } else {
+                        throw new \Exception(sprintf('Template does not exist at %s.', $file), 1);
+                    }
+                    include_once($file);
+                }
+            }
         }
 
         // Include template
-        if ($template_path) {
-            $file = sprintf('%s/%s.php', $this->settings->get('templates'), $template_path);
-            if (file_exists($file)) {
-                $template = $file;
-            } else {
-                throw new Exception(sprintf('Template does not exist at %s.', $file), 1);
+        /* if ($template_path) {
+            $file = apply_filters('sidewheels_partial_template', sprintf('%s/%s.php', $this->settings->get('templates'), $template_path), $template_path, $this->settings->get('templates'));
+            if( $file ) {
+                if (file_exists($file)) {
+                    $template = $file;
+                } else {
+                    throw new \Exception(sprintf('Template does not exist at %s.', $file), 1);
+                }
+                include_once($file);
             }
-            include_once($file);
-        }
+        } */
     }
 
     /**

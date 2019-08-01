@@ -13,7 +13,8 @@
         "10up/wp_mock": "0.4.2"
     },
     "require": {
-        "stoutlogic/acf-builder": "^1.8"
+        "stoutlogic/acf-builder": "^1.8",
+        "twig/twig": "^2.0"
     },
     "autoload": {
         "files": [

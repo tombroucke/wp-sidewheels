@@ -55,16 +55,4 @@ class Authenticator
 
         return apply_filters('sidewheels_user_can_view', $authorized, $sidewheels_endpoint, $sidewheels_object_id);
     }
-
-    /**
-     * Check if user is authenticated
-     * @return boolean
-     */
-    public function is_authenticated()
-    {
-        if ($this->requires_authentication() && !is_user_logged_in()) {
-            return false;
-        }
-        return true;
-    }
 }

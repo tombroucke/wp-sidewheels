@@ -43,7 +43,7 @@ class Settings
         $errors = $this->check_config();
         if (!empty($errors)) {
             foreach ($errors as $key => $error) {
-                throw new Exception($error, 1);
+                throw new \Exception($error, 1);
             }
             return false;
         }
@@ -157,6 +157,6 @@ class Settings
      */
     public function is_sidewheels_page()
     {
-        return $this->query_var('sidewheels_endpoint');
+        return ( $this->query_var('sidewheels_endpoint') ? true : false );
     }
 }

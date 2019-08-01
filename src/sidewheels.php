@@ -101,16 +101,15 @@ class WP_Sidewheels
      * If authenticated, load Sidewheels templates
      */
     public function frontend_init() {
-        if( !$this->settings->is_sidewheels_page() ) {
+        if( !$this->settings()->is_sidewheels_page() ) {
             return;
         }
         // Check if user is authenticated
         $this->authenticator = new Authenticator();
-        if( !$this->authenticator->is_authenticated() ) {
+        if( $this->authenticator->requires_authentication() && !is_user_logged_in() ) {
             auth_redirect();
         }
-
-        new Template_Controllers();
+        return new Template_Controllers();
     }
 
     /**
@@ -176,7 +175,7 @@ class WP_Sidewheels
     public function install()
     {
         $settings = new Settings();
-        $this->settings->validate();
+        $settings->validate();
         $this->create_routes();
         $this->add_roles();
         flush_rewrite_rules();

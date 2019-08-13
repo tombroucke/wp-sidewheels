@@ -28,7 +28,7 @@ if(!function_exists('wp_sidewheels')) {
 	}
 }
 
-if(!function_exists('wp_sidewheels')) {
+if(!function_exists('wp_sidewheels_render_template')) {
 	/**
 	 * [wp_sidewheels_render_template description]
 	 * @param  string $template template path/name.twig
@@ -36,9 +36,33 @@ if(!function_exists('wp_sidewheels')) {
 	 */
 	function wp_sidewheels_render_template($template, $args)
 	{
-		$loader = new FilesystemLoader(wp_sidewheels()->settings()->get('templates'));
+		$template_path = wp_sidewheels()->settings()->get('templates');
+		$loader = new FilesystemLoader($template_path);
 		$twig = new Environment($loader);
+		$template = str_replace('.twig', '', $template) . '.twig';
+
+		if( !isset($args['breadcrumbs']) ){
+			$args['breadcrumbs'] = array(
+				array(
+					'name' => __('Home', 'immobel'),
+					'url' => '/'
+				),
+			);
+			foreach (explode('/', str_replace('.twig', '', $template)) as $key => $value) {
+				$args['breadcrumbs'][] = array(
+					'name' => $value,
+					'url' => $value
+				);
+			}
+		}
+
+		$function = new \Twig\TwigFunction('__', function ($text, $domain) {
+			return __( $text, $domain );
+		});
+
+		$twig->addFunction($function);
 
 		echo $twig->render($template, $args);
 	}
 }
+

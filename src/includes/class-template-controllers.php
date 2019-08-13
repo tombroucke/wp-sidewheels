@@ -71,31 +71,17 @@ class Template_Controllers
                 include_once($file);
             }
             else {
-                // No controller found, only load template
+                // No controller found, only twig file
                 $file = apply_filters('sidewheels_partial_template', sprintf('%s/%s.twig', $this->settings->get('templates'), $template_path), $template_path, $this->settings->get('templates'));
                 if( $file ) {
                     if (file_exists($file)) {
-                        $template = $file;
+                        wp_sidewheels_render_template($template_path . '.twig', array());
                     } else {
                         throw new \Exception(sprintf('Template does not exist at %s.', $file), 1);
                     }
-                    include_once($file);
                 }
             }
         }
-
-        // Include template
-        /* if ($template_path) {
-            $file = apply_filters('sidewheels_partial_template', sprintf('%s/%s.php', $this->settings->get('templates'), $template_path), $template_path, $this->settings->get('templates'));
-            if( $file ) {
-                if (file_exists($file)) {
-                    $template = $file;
-                } else {
-                    throw new \Exception(sprintf('Template does not exist at %s.', $file), 1);
-                }
-                include_once($file);
-            }
-        } */
     }
 
     /**
@@ -105,6 +91,9 @@ class Template_Controllers
      */
     public function template_include($template)
     {
+
+        do_action('sidewheels_template_include');
+
         // Check if post type is correct
         if ($this->sidewheels_object_id) {
             $post_type = $this->settings->get_first_matching('endpoints', 'post_type', $this->sidewheels_endpoint);

@@ -31,6 +31,7 @@ class Fields{
 	 * @param  array $post_type
 	 */
 	private function build_fields($post_type_name, $post_type) {
+		// TODO: check logic, there seems to be an error
 		foreach ($post_type['field_groups'] as $id => $field_group) {
 			$group_name = apply_filters( 'sidewheels_acf_group_name', $id, $post_type_name, $field_group );
 			$builder = new FieldsBuilder($group_name);

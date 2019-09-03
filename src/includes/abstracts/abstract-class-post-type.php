@@ -8,7 +8,13 @@ abstract class Sidewheels_Post_Type
      * Post ID
      * @var integer
      */
+
     protected $ID;
+    /**
+     * Post url
+     * @var string
+     */
+    protected $url;
 
     /**
      * Define ID
@@ -17,6 +23,7 @@ abstract class Sidewheels_Post_Type
     public function __construct($id)
     {
         $this->ID = $id;
+        $this->url = get_the_permalink($this->get_ID());
     }
 
     /**
@@ -33,8 +40,9 @@ abstract class Sidewheels_Post_Type
      * @param  string $key
      * @return string|boolean
      */
-    public function get($key)
+    public function get($key, $prefix = '')
     {
+    	$key = $prefix ? $prefix . '_' . $key : $key;
         return get_post_meta($this->get_ID(), $key, true);
     }
 
@@ -108,6 +116,10 @@ abstract class Sidewheels_Post_Type
      * @return string
      */
     public function get_url(){
-    	return get_the_permalink($this->get_ID());
+    	return $this->url;
+    }
+
+    public function __set($name, $value) {
+    	$this->$name = $value;
     }
 }

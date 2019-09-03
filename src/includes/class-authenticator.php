@@ -41,18 +41,18 @@ class Authenticator
     public function user_can_view()
     {
         $authorized = false;
+        $sidewheels_endpoint 	= $this->settings->query_var('sidewheels_endpoint');
+
         if (!$this->requires_authentication()) {
             $authorized = true;
         } else {
-            $sidewheels_endpoint 	= $this->settings->query_var('sidewheels_endpoint');
-            $sidewheels_object_id 	= $this->settings->query_var('sidewheels_object_id');
-            $capability				= $this->settings->get_first_matching('endpoints', 'capability', $sidewheels_endpoint);
+            $capability = $this->settings->get_first_matching('endpoints', 'capability', $sidewheels_endpoint);
 
             if (!$capability || current_user_can($capability) || current_user_can('manage_options')) {
                 $authorized = true;
             }
         }
 
-        return apply_filters('sidewheels_user_can_view', $authorized, $sidewheels_endpoint, $sidewheels_object_id);
+        return apply_filters('sidewheels_user_can_view', $authorized, $sidewheels_endpoint, $this->settings->query_var());
     }
 }

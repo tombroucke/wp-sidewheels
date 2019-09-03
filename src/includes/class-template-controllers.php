@@ -24,7 +24,6 @@ class Template_Controllers
      * Current sidewheels object id
      * @var integer
      */
-    private $sidewheels_object_id;
 
     public function __construct()
     {
@@ -32,7 +31,6 @@ class Template_Controllers
         if (wp_sidewheels()->authenticator->user_can_view()) {
             $this->settings = wp_sidewheels()->settings();
             $this->sidewheels_endpoint 	= $this->settings->query_var('sidewheels_endpoint');
-            $this->sidewheels_object_id = $this->settings->query_var('sidewheels_object_id');
 
             add_action('sidewheels_custom_template_content', array( $this, 'template_content' ));
             add_filter('template_include', array( $this, 'template_include' ), 9999);
@@ -46,7 +44,6 @@ class Template_Controllers
      */
     public function template_content()
     {
-        $sidewheels_object_id 	= $this->sidewheels_object_id;
         $template_path 			= $this->settings->get_first_matching('endpoints', 'template', $this->sidewheels_endpoint);
         $controller 			= $this->settings->get_first_matching('endpoints', 'controller', $this->sidewheels_endpoint);
 
@@ -94,13 +91,13 @@ class Template_Controllers
 
         do_action('sidewheels_template_include');
 
-        // Check if post type is correct
-        if ($this->sidewheels_object_id) {
+        // Check if post type is correct, should not be done here
+        /* if ($this->sidewheels_object_id) {
             $post_type = $this->settings->get_first_matching('endpoints', 'post_type', $this->sidewheels_endpoint);
             if ($post_type && $post_type != get_post_type($this->sidewheels_object_id)) {
                 wp_sidewheels_trigger_404();
             }
-        }
+        }*/
 
         // Add main template file
         $template = sprintf('%s/%s.php', $this->settings->get('templates'), 'layout');

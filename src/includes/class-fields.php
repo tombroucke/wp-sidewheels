@@ -40,8 +40,9 @@ class Fields{
 			foreach ($field_group as $key => $field) {
 				$method = 'add' . $field['type'];
 				$args = ( isset($field['args']) ? $field['args'] : array() );
-				$args['name'] = $this->spaces_to_underscores($post_type_name . ' ' . $id . ' ' . $field['name']);
-				$newfield = $builder->addField($field['name'], $field['type'], $args);
+				$args['name'] = $this->spaces_to_underscores($post_type_name . ' ' . $id . ' ' . $key);
+				$label = isset( $field['label'] ) ? $field['label'] : $key;
+				$newfield = $builder->addField($label, $field['type'], $args);
 				if( isset($field['instructions']) ) {
 					$newfield->setInstructions($field['instructions']);
 				}

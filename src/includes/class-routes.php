@@ -22,8 +22,17 @@ class Routes
 	 * Create endpoint for each endpoint in Sidewheels config file
 	 */
 	public function create()
-	{
-		$this->add_endpoints($this->settings->get('endpoints'));
+	{				
+		if( function_exists('icl_get_languages') ){
+			global $sitepress;
+			$current_language = $sitepress->get_current_language();
+			foreach (icl_get_languages() as $language_code => $language) {
+				$sitepress->switch_lang($language_code, true);
+				$this->add_endpoints($this->settings->get('endpoints'));
+			}
+			$sitepress->switch_lang($current_language, true);
+		}
+
 	}
 
 	/**
@@ -35,79 +44,50 @@ class Routes
 	 */
 	private function add_endpoints($endpoints, $parents = array(), $hierachy = array(), $depth = 0)
 	{
+		global $sitepress;
+
 		$depth++;
 
 		foreach ($endpoints as $endpoint_name => $endpoint) {
 
-			$slug = '([0-9]+)';
-
-			// TODO: translate endpoints
-
 			if (!isset($endpoint['public']) || $endpoint['public']) {
+				
+				$items = $parents;
+				$items[] = array(
+					'slug' => str_replace( '[id]', '([0-9]+)', $endpoint_name ),
+					// TODO: try to get translation from config, not from here
+					'translated_slug' => str_replace( '[id]', '([0-9]+)', __($endpoint_name, $this->settings->get('text-domain')) ),
+					'handle' => ( isset( $endpoint['handle'] ) ? $endpoint['handle'] : false )
+				);
 
-				if( function_exists( 'icl_get_languages' ) ){
-					if ($endpoint_name != '[id]') {
-						$slug = $endpoint_name;
-					}
-					global $sitepress;
-					$languages = icl_get_languages();
-					foreach ($languages as $language_code => $language) {
-
-						$current_language = $sitepress->get_current_language();
-						$sitepress->switch_lang($language_code, true);
-
-						$translated_parents = array();
-
-						foreach ($parents as $key => $parent) {
-							$translated_parents[$key] = __($parent, $this->settings->get('text-domain'));
-						}
-
-						$translated_parentstring = (!empty($translated_parents) ? rtrim(implode('/', $translated_parents), '/') . '/' : '');
-						$hierachystring = (!empty($hierachy) ? rtrim(implode('/', $hierachy), '/') . '/' : '');
-						$endpoint_translated_name = __($slug, $this->settings->get('text-domain'));
-
-						$regex = $translated_parentstring . $endpoint_translated_name . '/?$';
-						$redirect = 'index.php?sidewheels_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $hierachystring . $endpoint_name), '/')) . '&sidewheels_object_id=$matches[1]&lang=' . $language_code;
-
-						if( apply_filters('sidewheels_add_rewrite_rule', true, $regex, $redirect, $endpoint_name, $endpoint) ) {
-							add_rewrite_rule( $regex, $redirect, 'top');
-						}
-
-						$sitepress->switch_lang($current_language, true);
-					}
-
-					if (!isset($parents[$endpoint_name])) {
-						$parents[] = $endpoint_name;
-						$hierachy[] = $endpoint_name;
+				$regex = '^';
+				if( $sitepress->get_current_language() != $sitepress->get_default_language() ){
+					//$regex = '^' . $sitepress->get_current_language() . '/';
+				}
+				$sidewheels_endpoint = '';
+				$redirect_vars = array();
+				foreach ($items as $key => $item) {
+					$regex .= $item['translated_slug'] . '/';
+					$sidewheels_endpoint .= $item['slug'] . '/';
+					if (strpos($item['slug'], '([0-9]+)') !== false || strpos($item['slug'], '[id]') !== false) {
+					    array_push($redirect_vars, sprintf('&%s=$matches[%s]',$item['handle'],count($redirect_vars) +1 ));
 					}
 				}
-				else{
+				$regex .= '?$';
 
-					if ($endpoint_name != '[id]') {
-						$slug = $endpoint['slug'];
-					}
+				$redirect = 'index.php?lang=' . $sitepress->get_current_language() . '&sidewheels_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $sidewheels_endpoint), '/')) . implode($redirect_vars);
 
-					$translated_parents = array();
+				if( !isset( $endpoint['disable'] ) || !$endpoint['disable'] ){
+					add_rewrite_rule( $regex, $redirect, 'top');
+				}
 
-					foreach ($parents as $key => $parent) {
-						$translated_parents[$key] = __($parent, $this->settings->get('text-domain'));
-					}
-
-					$translated_parentstring = (!empty($translated_parents) ? rtrim(implode('/', $translated_parents), '/') . '/' : '');
-
-					$hierachystring = (!empty($hierachy) ? rtrim(implode('/', $hierachy), '/') . '/' : '');
-					
-					$regex = '^' . $translated_parentstring . $slug . '/?$';
-					$redirect = 'index.php?sidewheels_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $hierachystring . $endpoint_name), '/')) . '&sidewheels_object_id=$matches[1]';
-
-					if( apply_filters('sidewheels_add_rewrite_rule', true, $regex, $redirect, $endpoint_name, $endpoint) ) {
-						add_rewrite_rule( $regex, $redirect, 'top');
-					}
-
-					if (!isset($parents[$endpoint_name])) {
-						$parents[] = $slug;
-						$hierachy[] = $endpoint_name;
-					}
+				if (!isset($parents[$endpoint_name])) {
+					$parents[] = array(
+						'slug' => str_replace( '[id]', '([0-9]+)', $endpoint_name ),
+						// TODO: try to get translation from config, not from here
+						'translated_slug' => str_replace( '[id]', '([0-9]+)', __($endpoint_name, $this->settings->get('text-domain')) ),
+						'handle' => ( isset( $endpoint['handle'] ) ? $endpoint['handle'] : false )
+					);
 				}
 			}
 
@@ -116,6 +96,7 @@ class Routes
 			} else {
 				$depth--;
 			}
+
 			array_pop($parents);
 			array_pop($hierachy);
 		}

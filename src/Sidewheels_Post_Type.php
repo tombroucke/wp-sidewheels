@@ -1,4 +1,6 @@
 <?php
+namespace Otomaties\WP_Sidewheels;
+
 /**
  * Logic for Sidewheels post types
  */
@@ -40,10 +42,20 @@ abstract class Sidewheels_Post_Type
      * @param  string $key
      * @return string|boolean
      */
-    public function get($key, $prefix = '')
+    public function get($key, $single = true)
+    {
+        return get_post_meta($this->get_ID(), $key, $single);
+    }
+
+    /**
+     * Get acf field
+     * @param  string $key
+     * @return string|boolean
+     */
+    public function get_field($key, $prefix = '')
     {
     	$key = $prefix ? $prefix . '_' . $key : $key;
-        return get_post_meta($this->get_ID(), $key, true);
+        return get_field($key, $this->get_ID());
     }
 
     /**

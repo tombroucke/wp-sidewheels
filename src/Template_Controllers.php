@@ -1,5 +1,5 @@
 <?php
-namespace SideWheels;
+namespace Otomaties\WP_Sidewheels;
 
 /**
  * Load templates and controllers
@@ -25,11 +25,11 @@ class Template_Controllers
      * @var integer
      */
 
-    public function __construct()
+    public function __construct( $settings, $authenticator )
     {
         // Only load templates when user can view content
-        if (wp_sidewheels()->authenticator->user_can_view()) {
-            $this->settings = wp_sidewheels()->settings();
+        if ($authenticator->user_can_view()) {
+            $this->settings = $settings;
             $this->sidewheels_endpoint 	= $this->settings->query_var('sidewheels_endpoint');
 
             add_action('sidewheels_custom_template_content', array( $this, 'template_content' ));
@@ -47,6 +47,8 @@ class Template_Controllers
         $template_path 			= $this->settings->get_first_matching('endpoints', 'template', $this->sidewheels_endpoint);
         $controller 			= $this->settings->get_first_matching('endpoints', 'controller', $this->sidewheels_endpoint);
 
+        $settings = $this->settings; // Is passed on to controller
+
         if ($controller) {
             // Load controller from defined path
             $file = sprintf('%s/%s.php', $this->settings->get('controllers'), $controller);
@@ -61,9 +63,10 @@ class Template_Controllers
 
             end($template_path_array);
             $template_path_array[key($template_path_array)] = ucwords($template_path_array[key($template_path_array)]);
-            
+
             $controller_path = implode($template_path_array, '/');
             $file = sprintf('%s/%s.php', $this->settings->get('controllers'), $controller_path . 'Controller');
+
             if (file_exists($file)) {
                 include_once($file);
             }

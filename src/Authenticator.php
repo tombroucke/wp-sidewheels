@@ -1,5 +1,5 @@
 <?php
-namespace SideWheels;
+namespace Otomaties\WP_Sidewheels;
 
 /**
  * Authenticate users in Sidewheels
@@ -13,9 +13,9 @@ class Authenticator
      */
 	private $settings;
 
-    public function __construct()
+    public function __construct( $settings )
     {
-        $this->settings = wp_sidewheels()->settings();
+        $this->settings = $settings;
     }
 
     /**

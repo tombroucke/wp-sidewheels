@@ -1,5 +1,5 @@
 <?php
-namespace SideWheels;
+namespace Otomaties\WP_Sidewheels;
 
 /**
  * Create routes to each endpoint in config.php
@@ -13,16 +13,16 @@ class Routes
      */
     private $settings;
 
-    public function __construct()
+    public function __construct( Settings $settings )
     {
-    	$this->settings = wp_sidewheels()->settings();
+    	$this->settings = $settings;
     }
 
 	/**
 	 * Create endpoint for each endpoint in Sidewheels config file
 	 */
 	public function create()
-	{				
+	{	
 		if( function_exists('icl_get_languages') ){
 			global $sitepress;
 			$current_language = $sitepress->get_current_language();
@@ -32,7 +32,9 @@ class Routes
 			}
 			$sitepress->switch_lang($current_language, true);
 		}
-
+		else {
+			$this->add_endpoints($this->settings->get('endpoints'));
+		}
 	}
 
 	/**
@@ -48,6 +50,10 @@ class Routes
 
 		$depth++;
 
+		if( empty( $endpoints ) ){
+			return;
+		}
+
 		foreach ($endpoints as $endpoint_name => $endpoint) {
 
 			if (!isset($endpoint['public']) || $endpoint['public']) {
@@ -56,27 +62,23 @@ class Routes
 				$items[] = array(
 					'slug' => str_replace( '[id]', '([0-9]+)', $endpoint_name ),
 					// TODO: try to get translation from config, not from here
-					'translated_slug' => str_replace( '[id]', '([0-9]+)', __($endpoint_name, $this->settings->get('text-domain')) ),
+					'translated_slug' => str_replace( '[id]', '([0-9]+)', __($endpoint_name, $this->settings->get_textdomain()) ),
 					'handle' => ( isset( $endpoint['handle'] ) ? $endpoint['handle'] : false )
 				);
 
 				$regex = '^';
-				if( $sitepress->get_current_language() != $sitepress->get_default_language() ){
-					//$regex = '^' . $sitepress->get_current_language() . '/';
-				}
 				$sidewheels_endpoint = '';
 				$redirect_vars = array();
 				foreach ($items as $key => $item) {
 					$regex .= $item['translated_slug'] . '/';
 					$sidewheels_endpoint .= $item['slug'] . '/';
 					if (strpos($item['slug'], '([0-9]+)') !== false || strpos($item['slug'], '[id]') !== false) {
-					    array_push($redirect_vars, sprintf('&%s=$matches[%s]',$item['handle'],count($redirect_vars) +1 ));
+						array_push($redirect_vars, sprintf('&%s=$matches[%s]',$item['handle'],count($redirect_vars) +1 ));
 					}
 				}
 				$regex .= '?$';
 
-				$redirect = 'index.php?lang=' . $sitepress->get_current_language() . '&sidewheels_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $sidewheels_endpoint), '/')) . implode($redirect_vars);
-
+				$redirect = 'index.php?sidewheels_endpoint=' . urlencode(rtrim(str_replace('([0-9]+)', '[id]', $sidewheels_endpoint), '/')) . implode($redirect_vars);
 				if( !isset( $endpoint['disable'] ) || !$endpoint['disable'] ){
 					add_rewrite_rule( $regex, $redirect, 'top');
 				}
@@ -85,7 +87,7 @@ class Routes
 					$parents[] = array(
 						'slug' => str_replace( '[id]', '([0-9]+)', $endpoint_name ),
 						// TODO: try to get translation from config, not from here
-						'translated_slug' => str_replace( '[id]', '([0-9]+)', __($endpoint_name, $this->settings->get('text-domain')) ),
+						'translated_slug' => str_replace( '[id]', '([0-9]+)', __($endpoint_name, $this->settings->get_textdomain()) ),
 						'handle' => ( isset( $endpoint['handle'] ) ? $endpoint['handle'] : false )
 					);
 				}

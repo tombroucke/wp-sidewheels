@@ -1,6 +1,6 @@
 {
     "name": "tombroucke/wp-sidewheels",
-    "description": "package under development",
+    "description": "Create virtual pages in WordPress. Configure custom post types, authentication, roles, ... Templates are rendered by Twig, data is passed through controllers.",
     "autoload": {
         "psr-4": {
             "Otomaties\\WP_Sidewheels\\": "src/"

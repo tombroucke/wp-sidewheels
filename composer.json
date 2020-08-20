@@ -1,6 +1,6 @@
 {
     "name": "tombroucke/wp-sidewheels",
-    "description": "package under development",
+    "description": "Framework for developing application in your WP install.",
     "autoload": {
         "psr-4": {
             "Otomaties\\WP_Sidewheels\\": "src/"

@@ -1,6 +1,9 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
+/**
+ * Main class for our framework.
+ */
 class Sidewheels {
 
 	/**

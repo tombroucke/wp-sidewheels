@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
 /**
@@ -31,7 +31,7 @@ class Custom_Post_Types {
 	 * @param  \WP_Post $post    Post object.
 	 * @return string Custom url Customized url.
 	 */
-	public function custom_post_type_link( $url, $post ) {
+	public function custom_post_type_link( string $url, \WP_Post $post ) {
 		$post_type  = get_post_type( $post );
 		$post_types = $this->settings->get( 'post_types' );
 		if ( isset( $post_types[ $post_type ] ) && isset( $post_types[ $post_type ]['url'] ) ) {
@@ -70,7 +70,7 @@ class Custom_Post_Types {
 	 * @param string $post_type The post type slug.
 	 * @param array  $args      Post type args.
 	 */
-	private function add_post_type( $post_type, $args = array() ) {
+	private function add_post_type( string $post_type, array $args = array() ) {
 		$plural_name = $args['labels']['plural_name'];
 		$singular_name = $args['labels']['singular_name'];
 
@@ -79,16 +79,16 @@ class Custom_Post_Types {
 			'singular_name'      => ucfirst( $singular_name ),
 			'menu_name'          => ucfirst( $plural_name ),
 			'name_admin_bar'     => ucfirst( $singular_name ),
-			'add_new'            => __( 'Add new', $this->settings->get_textdomain() ),
-			'add_new_item'       => sprintf( __( 'Add new %s', $this->settings->get_textdomain() ), $singular_name ),
-			'new_item'           => sprintf( __( 'New %s', $this->settings->get_textdomain() ), $singular_name ),
-			'edit_item'          => sprintf( __( 'Edit %s', $this->settings->get_textdomain() ), $singular_name ),
-			'view_item'          => sprintf( __( 'View %s', $this->settings->get_textdomain() ), $singular_name ),
-			'all_items'          => sprintf( __( 'All %s', $this->settings->get_textdomain() ), $plural_name ),
-			'search_items'       => sprintf( __( 'Search %s', $this->settings->get_textdomain() ), $plural_name ),
-			'parent_item_colon'  => sprintf( __( 'Parent %s', $this->settings->get_textdomain() ), $singular_name ),
-			'not_found'          => sprintf( __( 'No %s found', $this->settings->get_textdomain() ), $plural_name ),
-			'not_found_in_trash' => sprintf( __( 'No %s found in trash', $this->settings->get_textdomain() ), $plural_name ),
+			'add_new'            => __( 'Add new', $this->settings->get_textdomain() ), // phpcs:ignore
+			'add_new_item'       => sprintf( __( 'Add new %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'new_item'           => sprintf( __( 'New %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'edit_item'          => sprintf( __( 'Edit %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'view_item'          => sprintf( __( 'View %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'all_items'          => sprintf( __( 'All %s', $this->settings->get_textdomain() ), $plural_name ), // phpcs:ignore
+			'search_items'       => sprintf( __( 'Search %s', $this->settings->get_textdomain() ), $plural_name ), // phpcs:ignore
+			'parent_item_colon'  => sprintf( __( 'Parent %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'not_found'          => sprintf( __( 'No %s found', $this->settings->get_textdomain() ), $plural_name ), // phpcs:ignore
+			'not_found_in_trash' => sprintf( __( 'No %s found in trash', $this->settings->get_textdomain() ), $plural_name ), // phpcs:ignore
 		);
 		$labels = wp_parse_args( $args['labels'], $default_labels );
 
@@ -121,21 +121,21 @@ class Custom_Post_Types {
 	 * @param string $name          Taxonomy name.
 	 * @param string $singular_name Singular name.
 	 * @param string $plural_name   Plural name.
-	 * @param array  $post_type     The post type for this new taxonomy.
+	 * @param string $post_type     The post type for this new taxonomy.
 	 * @param array  $options       Custom options.
 	 */
-	private function add_taxonomy( $name, $singular_name, $plural_name, $post_type = array(), $options = array() ) {
+	private function add_taxonomy( string $name, string $singular_name, string $plural_name, string $post_type, array $options = array() ) {
 		$labels = array(
 			'name'              => ucfirst( $plural_name ),
 			'singular_name'     => ucfirst( $singular_name ),
-			'search_items'      => sprintf( __( 'Search %s', $this->settings->get_textdomain() ), $plural_name ),
-			'all_items'         => sprintf( __( 'All %s', $this->settings->get_textdomain() ), $plural_name ),
-			'parent_item'       => sprintf( __( 'Parent %s', $this->settings->get_textdomain() ), $singular_name ),
-			'parent_item_colon' => sprintf( __( 'Parent %s:', $this->settings->get_textdomain() ), $singular_name ),
-			'edit_item'         => sprintf( __( 'Edit %s', $this->settings->get_textdomain() ), $singular_name ),
-			'update_item'       => sprintf( __( 'Update %s', $this->settings->get_textdomain() ), $singular_name ),
-			'add_new_item'      => sprintf( __( 'Add new %s', $this->settings->get_textdomain() ), $singular_name ),
-			'new_item_name'     => sprintf( __( 'New %s', $this->settings->get_textdomain() ), $singular_name ),
+			'search_items'      => sprintf( __( 'Search %s', $this->settings->get_textdomain() ), $plural_name ), // phpcs:ignore
+			'all_items'         => sprintf( __( 'All %s', $this->settings->get_textdomain() ), $plural_name ), // phpcs:ignore
+			'parent_item'       => sprintf( __( 'Parent %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'parent_item_colon' => sprintf( __( 'Parent %s:', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'edit_item'         => sprintf( __( 'Edit %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'update_item'       => sprintf( __( 'Update %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'add_new_item'      => sprintf( __( 'Add new %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
+			'new_item_name'     => sprintf( __( 'New %s', $this->settings->get_textdomain() ), $singular_name ), // phpcs:ignore
 			'menu_name'         => ucfirst( $plural_name ),
 		);
 

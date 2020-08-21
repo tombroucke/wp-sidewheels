@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
 /**
@@ -15,8 +15,10 @@ class Settings {
 
 	/**
 	 * Check if config file exists, save to variable
+	 *
+	 * @param array $config Config file.
 	 */
-	public function __construct( $config ) {
+	public function __construct( array $config ) {
 		$this->config = $config;
 
 		if ( defined( 'WP_ENV' ) && WP_ENV == 'development' ) {
@@ -27,7 +29,8 @@ class Settings {
 	/**
 	 * Check config file for errors, return array of errors
 	 *
-	 * @return array array of errors
+	 * @return void
+	 * @throws \Exception Problems with config file.
 	 */
 	private function check_config() {
 		$errors = array();
@@ -35,21 +38,25 @@ class Settings {
 		if ( isset( $this->config['endpoints'] ) ) {
 			foreach ( $this->config['endpoints'] as $name => $endpoint ) {
 				if ( isset( $endpoint['is_home'] ) && ++$home_count > 1 ) {
-					throw new \Exception('There are multiple endpoints set as home in your config file.', 1);
+					throw new \Exception( 'There are multiple endpoints set as home in your config file.', 1 );
 				}
 			}
-		}
-		else {
-			throw new \Exception('\'endpoints\' is not set in your config file.', 1);
+		} else {
+			throw new \Exception( '\'endpoints\' is not set in your config file.', 1 );
 		}
 		if ( ! isset( $this->config['post_types'] ) ) {
-			throw new \Exception('\'post_types\' is not set in your config file.', 1);
+			throw new \Exception( '\'post_types\' is not set in your config file.', 1 );
 		}
 		if ( ! isset( $this->config['text_domain'] ) ) {
-			throw new \Exception('\'text_domain\' is not set in your config file.', 1);
+			throw new \Exception( '\'text_domain\' is not set in your config file.', 1 );
 		}
 	}
 
+	/**
+	 * Get defined textdomain
+	 *
+	 * @return string The textdomain.
+	 */
 	public function get_textdomain() {
 		return $this->get( 'text_domain' );
 	}
@@ -57,8 +64,9 @@ class Settings {
 	/**
 	 * Get value in config file
 	 *
-	 * @param  string $parameter
+	 * @param  string $parameter This key will be fetched from the config file.
 	 * @return array|boolean
+	 * @throws \Exception Undefined key.
 	 */
 	public function get( $parameter = null ) {
 		$return = array();
@@ -79,42 +87,46 @@ class Settings {
 	/**
 	 * Get value from config file. Iterate parents untill certain key is found
 	 *
-	 * @param  string $param
-	 * @param  string $item
-	 * @param  string $currentpage
+	 * @param  string $param       We will search in this key.
+	 * @param  string $item        This key that needs to be found.
+	 * @param  string $currentpage The current path.
 	 * @return string|boolean
 	 */
-	public function get_first_matching( $param, $item, $currentpage ) {
+	public function get_matching( string $param, string $item, string $currentpage ) {
 		$pagearray          = explode( '/', $currentpage );
 		$endpoints          = $this->get( $param );
 		$current_endpoint   = $endpoints[ $pagearray[0] ];
-		$match          = false;
+		$match          	= array();
 		foreach ( $pagearray as $key => $endpoint ) {
 			if ( isset( $current_endpoint[ $item ] ) ) {
-				$match = $current_endpoint[ $item ];
+				$match[] = $current_endpoint[ $item ];
 			}
 			if ( ++$key < count( $pagearray ) ) {
 				$current_endpoint = $current_endpoint['children'][ $pagearray[ $key ] ];
 			}
 		}
-		return $match;
+		return array_reverse( $match );
 	}
 
 	/**
 	 * Get query var from wp_query
 	 *
-	 * @param  string|null $var
+	 * @param  string|null $var Get query var for this key.
 	 * @return string|array|boolean
 	 */
 	public function query_var( $var = null ) {
 		global $wp_query;
-		// no variable
+
+		// no variable: return all vars.
 		if ( ! $var && $wp_query ) {
 			return $wp_query->query_vars;
 		}
+
+		// Key does not exist.
 		if ( ! isset( $wp_query->query_vars[ $var ] ) ) {
 			return false;
 		}
+
 		return $wp_query->query_vars[ $var ];
 	}
 

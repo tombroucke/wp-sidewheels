@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 
 if ( ! function_exists( 'wp_sidewheels_trigger_404' ) ) {
 	/**
@@ -6,7 +6,6 @@ if ( ! function_exists( 'wp_sidewheels_trigger_404' ) ) {
 	 */
 	function wp_sidewheels_trigger_404() {
 		global $wp_query;
-		$wp_query = new WP_Query();
 		$wp_query->set_404();
 		status_header( 404 );
 	}

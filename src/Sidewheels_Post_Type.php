@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
 /**
@@ -14,20 +14,12 @@ abstract class Sidewheels_Post_Type {
 	protected $ID;
 
 	/**
-	 * Post url
-	 *
-	 * @var string
-	 */
-	protected $url;
-
-	/**
 	 * Initialize post type
 	 *
 	 * @param integer $id Post ID.
 	 */
 	public function __construct( $id ) {
 		$this->ID = $id;
-		$this->url = get_the_permalink( $this->get_ID() );
 	}
 
 	/**
@@ -35,7 +27,7 @@ abstract class Sidewheels_Post_Type {
 	 *
 	 * @return integer Post ID
 	 */
-	public function get_ID() {
+	public function get_ID() { // phpcs:ignore
 		return $this->ID;
 	}
 
@@ -130,6 +122,6 @@ abstract class Sidewheels_Post_Type {
 	 * @return string The permalink.
 	 */
 	public function get_url() {
-		return $this->url;
+		return get_the_permalink( $this->get_ID() );
 	}
 }

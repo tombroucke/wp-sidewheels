@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
 /**
@@ -23,6 +23,7 @@ class Url {
 	/**
 	 * Define settings & path
 	 *
+	 * @param array    $path     Desired path.
 	 * @param Settings $settings Sidewheel settings.
 	 */
 	public function __construct( array $path, Settings $settings ) {
@@ -42,14 +43,15 @@ class Url {
 			return $url;
 		}
 		$current = $endpoints[ $this->path[0] ];
-		for ( $i = 0; $i <= count( $this->path ) - 1; $i++ ) {
+		$count = count( $this->path );
+		for ( $i = 0; $i <= $count - 1; $i++ ) {
 			if ( isset( $current['handle'] ) ) {
 				$url .= $this->settings->query_var( $current['handle'] ) . '/';
 			} else {
-				$url .= __( $current['slug'], $this->settings->get_textdomain() ) . '/';
+				$url .= __( $current['slug'], $this->settings->get_textdomain() ) . '/'; // phpcs:ignore
 			}
 
-			if ( $i + 1 < count( $this->path ) ) {
+			if ( $i + 1 < $count ) {
 				$current = $current['children'][ $this->path[ $i + 1 ] ];
 			}
 		}

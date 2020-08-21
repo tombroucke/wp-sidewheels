@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
 /**
@@ -43,12 +43,12 @@ class Routes {
 	/**
 	 * Iterate endpoints & add rewrite rule for each one
 	 *
-	 * @param array   $endpoints
-	 * @param array   $parents
-	 * @param array   $hierachy
-	 * @param integer $depth
+	 * @param array $endpoints array with config's endpoints.
+	 * @param array $parents   Endpoint parents.
+	 * @param array $hierachy  Hierarchy.
+	 * @param int   $depth     Depth of current endpoint.
 	 */
-	private function add_endpoints( $endpoints, $parents = array(), $hierachy = array(), $depth = 0 ) {
+	private function add_endpoints( array $endpoints, array $parents = array(), array $hierachy = array(), int $depth = 0 ) {
 		global $sitepress;
 
 		$depth++;
@@ -65,7 +65,7 @@ class Routes {
 				$items[] = array(
 					'slug' => str_replace( '[id]', '([0-9]+)', $endpoint_name ),
 					// TODO: try to get translation from config, not from here.
-					'translated_slug' => str_replace( '[id]', '([0-9]+)', __( $endpoint_name, $this->settings->get_textdomain() ) ),
+					'translated_slug' => str_replace( '[id]', '([0-9]+)', __( $endpoint_name, $this->settings->get_textdomain() ) ), // phpcs:ignore
 					'handle' => ( isset( $endpoint['handle'] ) ? $endpoint['handle'] : false ),
 				);
 
@@ -89,8 +89,8 @@ class Routes {
 				if ( ! isset( $parents[ $endpoint_name ] ) ) {
 					$parents[] = array(
 						'slug' => str_replace( '[id]', '([0-9]+)', $endpoint_name ),
-						// TODO: try to get translation from config, not from here
-						'translated_slug' => str_replace( '[id]', '([0-9]+)', __( $endpoint_name, $this->settings->get_textdomain() ) ),
+						// TODO: try to get translation from config, not from here.
+						'translated_slug' => str_replace( '[id]', '([0-9]+)', __( $endpoint_name, $this->settings->get_textdomain() ) ), // phpcs:ignore
 						'handle' => ( isset( $endpoint['handle'] ) ? $endpoint['handle'] : false ),
 					);
 				}

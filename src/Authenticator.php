@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
 /**
@@ -18,7 +18,7 @@ class Authenticator {
 	 *
 	 * @param Settings $settings Sidewheel settings.
 	 */
-	public function __construct( $settings ) {
+	public function __construct( Settings $settings ) {
 		$this->settings = $settings;
 	}
 
@@ -30,8 +30,8 @@ class Authenticator {
 	public function requires_authentication() {
 		$sidewheels_endpoint = $this->settings->query_var( 'sidewheels_endpoint' );
 		if ( $this->settings->is_sidewheels_page() ) {
-			$capability     = $this->settings->get_first_matching( 'endpoints', 'capability', $sidewheels_endpoint );
-			if ( $capability && 'read_posts' != $capability ) {
+			$capabilities     = $this->settings->get_matching( 'endpoints', 'capability', $sidewheels_endpoint );
+			if ( ! empty( $capabilities ) && 'read_posts' != $capabilities[0] ) {
 				return true;
 			}
 		}
@@ -50,9 +50,9 @@ class Authenticator {
 		if ( ! $this->requires_authentication() ) {
 			$authorized = true;
 		} else {
-			$capability = $this->settings->get_first_matching( 'endpoints', 'capability', $sidewheels_endpoint );
+			$capabilities = $this->settings->get_matching( 'endpoints', 'capability', $sidewheels_endpoint );
 
-			if ( ! $capability || current_user_can( $capability ) || current_user_can( 'manage_options' ) ) {
+			if ( empty( $capabilities ) || current_user_can( $capabilities[0] ) || current_user_can( 'manage_options' ) ) {
 				$authorized = true;
 			}
 		}

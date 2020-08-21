@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 namespace Otomaties\WP_Sidewheels;
 
 /**
@@ -20,19 +20,18 @@ class Template_Controllers {
 	 */
 	private $sidewheels_endpoint;
 
-
-
 	/**
+	 * Check if user can view the requested page & if post type is correct, display template
 	 *
-	 *
-	 * @param Settings $settings Sidewheel settings.
+	 * @param Settings      $settings      Sidewheels settings.
+	 * @param Authenticator $authenticator Sidweheels authenticator.
 	 */
-	public function __construct( $settings, $authenticator ) {
-		// Only load templates when user can view content.
-		if ( $authenticator->user_can_view() ) {
-			$this->settings = $settings;
-			$this->sidewheels_endpoint  = $this->settings->query_var( 'sidewheels_endpoint' );
+	public function __construct( Settings $settings, Authenticator $authenticator ) {
+		$this->settings = $settings;
+		$this->sidewheels_endpoint  = $this->settings->query_var( 'sidewheels_endpoint' );
 
+		// Only load templates when user can view content.
+		if ( $authenticator->user_can_view() && $this->post_type_correct() ) {
 			add_action( 'sidewheels_custom_template_content', array( $this, 'template_content' ) );
 			add_filter( 'template_include', array( $this, 'template_include' ), 9999 );
 		} else {
@@ -44,66 +43,58 @@ class Template_Controllers {
 	 * Include template & controller
 	 *
 	 * @return void
+	 * @throws \Exception Default exception.
 	 */
 	public function template_content() {
-		$template_path          = $this->settings->get_first_matching( 'endpoints', 'template', $this->sidewheels_endpoint );
-		$controller             = $this->settings->get_first_matching( 'endpoints', 'controller', $this->sidewheels_endpoint );
+		$controllers             = $this->settings->get_matching( 'endpoints', 'controller', $this->sidewheels_endpoint );
+		$settings               = $this->settings; // Is passed on to controller.
 
-		$settings = $this->settings; // Is passed on to controller.
-
-		if ( $controller ) {
+		if ( !empty( $controllers ) ) {
+			$controller = $controllers[0];
 			// Load controller from defined path.
 			$file = sprintf( '%s/%s.php', $this->settings->get( 'controllers' ), $controller );
 			if ( file_exists( $file ) ) {
 				$controller = include_once( $file );
-				$controller->render_template( 'shop-manager/dashboard' );
+				$controller->render_template();
 			} else {
 				throw new \Exception( sprintf( 'Controller does not exist at %s.', $file ), 1 );
 			}
 		} else {
-			// Load controller from default path.
-			$template_path_array = explode( '/', $template_path );
+			throw new \Exception( sprintf( 'Controller is not defined for %s.', $this->sidewheels_endpoint ), 1 );
+		}
+	}
 
-			end( $template_path_array );
-			$template_path_array[ key( $template_path_array ) ] = ucwords( $template_path_array[ key( $template_path_array ) ] );
+	/**
+	 * Check if a post type & handle is defined. If they both are, check if the post type matches the requested post type
+	 *
+	 * @return Boolean Whether or not the post type is correct
+	 */
+	public function post_type_correct() {
 
-			$controller_path = implode( $template_path_array, '/' );
-			$file = sprintf( '%s/%s.php', $this->settings->get( 'controllers' ), $controller_path . 'Controller' );
+		$post_types  = $this->settings->get_matching( 'endpoints', 'post_type', $this->sidewheels_endpoint );
+		$handles     = $this->settings->get_matching( 'endpoints', 'handle', $this->sidewheels_endpoint );
 
-			if ( file_exists( $file ) ) {
-				include_once( $file );
-			} else {
-				// No controller found, only twig file.
-				$file = apply_filters( 'sidewheels_partial_template', sprintf( '%s/%s.twig', $this->settings->get( 'templates' ), $template_path ), $template_path, $this->settings->get( 'templates' ) );
-				if ( $file ) {
-					if ( file_exists( $file ) ) {
-						wp_sidewheels_render_template( $template_path . '.twig', array() );
-					} else {
-						throw new \Exception( sprintf( 'Template does not exist at %s.', $file ), 1 );
-					}
+		foreach ($handles as $key => $handle) {
+			$post_type = $post_types[$key];
+			if ( $post_type && $handle ) {
+				if ( get_post_type( $this->settings->query_var( $handle ) ) != $post_type ) {
+					return false;
 				}
 			}
 		}
+
+		return true;
 	}
 
 	/**
 	 * Get main template
 	 *
-	 * @param  string $template current template
+	 * @param  string $template current template.
 	 * @return string custom template
 	 */
 	public function template_include( $template ) {
 
 		do_action( 'sidewheels_template_include' );
-
-		// Check if post type is correct, should not be done here
-		/*
-		 if ($this->sidewheels_object_id) {
-			$post_type = $this->settings->get_first_matching('endpoints', 'post_type', $this->sidewheels_endpoint);
-			if ($post_type && $post_type != get_post_type($this->sidewheels_object_id)) {
-				wp_sidewheels_trigger_404();
-			}
-		}*/
 
 		// Add main template file.
 		$template = sprintf( '%s/%s.php', $this->settings->get( 'templates' ), 'layout' );

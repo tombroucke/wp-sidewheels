@@ -71,6 +71,7 @@ class Custom_Post_Types {
 	 * @param array  $args      Post type args.
 	 */
 	private function add_post_type( string $post_type, array $args = array() ) {
+
 		$plural_name = $args['labels']['plural_name'];
 		$singular_name = $args['labels']['singular_name'];
 
@@ -112,7 +113,7 @@ class Custom_Post_Types {
 		);
 		$args = wp_parse_args( $args, $default_args );
 
-		register_post_type( $post_type, $args );
+		register_extended_post_type( $post_type, $args );
 	}
 
 	/**
@@ -124,7 +125,7 @@ class Custom_Post_Types {
 	 * @param string $post_type     The post type for this new taxonomy.
 	 * @param array  $options       Custom options.
 	 */
-	private function add_taxonomy( string $name, string $singular_name, string $plural_name, string $post_type, array $options = array() ) {
+	private function add_taxonomy( string $name, string $singular_name, string $plural_name, string $post_type, array $default_args = array() ) {
 		$labels = array(
 			'name'              => ucfirst( $plural_name ),
 			'singular_name'     => ucfirst( $singular_name ),
@@ -148,10 +149,8 @@ class Custom_Post_Types {
 			'rewrite'           => array( 'slug' => $name ),
 		);
 
-		foreach ( $options as $key => $value ) {
-			$args[ $key ] = $value;
-		}
+		$args = wp_parse_args( $args, $default_args );
 
-		register_taxonomy( $name, $post_type, $args );
+		register_extended_taxonomy( $name, $post_type, $args );
 	}
 }

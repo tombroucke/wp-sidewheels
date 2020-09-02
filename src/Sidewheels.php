@@ -14,74 +14,73 @@ class Sidewheels {
 	private $settings;
 
 	/**
+	 * Loader obkect
+	 *
+	 * @var Loader
+	 */
+	private $loader;
+
+	/**
 	 * Initilize hooks, define settings
 	 *
 	 * @param array $config Configuration file.
 	 */
 	public function __construct( array $config ) {
+
+		$this->loader = new Loader();
 		$this->settings = new Settings( $config );
+		$this->init();
+		$this->run();
 
-		add_filter( 'query_vars', array( $this, 'custom_query_vars' ) );
-
-		add_action( 'template_redirect', array( $this, 'frontend_init' ), 0 );
-
-		add_action( 'init', array( $this, 'create_routes' ) );
-		add_action( 'init', array( $this, 'create_post_types' ), 0 );
 	}
 
 	/**
-	 * Add query args for custom routing
+	 * Add actions and filters
 	 *
-	 * @param  array $vars WP query vars.
-	 * @return array
+	 * @return void
 	 */
-	public function custom_query_vars( $vars ) {
-		$vars[] = 'sidewheels_endpoint';
+	public function init() {
 
-		// All handles for [id] endpoints.
-		$endpoints = $this->settings->get( 'endpoints' );
-		array_walk_recursive(
-			$endpoints,
-			function( $endpoint, $key ) use ( &$vars ) {
-				if ( 'handle' == $key ) {
-					$vars[] = $endpoint;
-				}
-			}
-		);
-		return $vars;
+		$this->initialize_templates();
+		$this->create_post_types();
+		$this->configure_routes();
+
 	}
 
 	/**
-	 * If authenticated, load Sidewheels templates
+	 * Add query vars and create endpoints
+	 *
+	 * @return void
 	 */
-	public function frontend_init() {
-		if ( ! $this->settings()->is_sidewheels_page() ) {
-			return;
-		}
+	public function configure_routes() {
 
-		// Check if user is authenticated.
-		$this->authenticator = new Authenticator( $this->settings );
-		if ( $this->authenticator->requires_authentication() && ! is_user_logged_in() ) {
-			auth_redirect();
-		}
-		new Template_Controllers( $this->settings, $this->authenticator );
+		$routes = new Routes( $this->settings() );
+		$this->loader->add_filter( 'query_vars', $routes, 'custom_query_vars' );
+		$this->loader->add_action( 'init', $routes, 'create' );
+
 	}
 
 	/**
-	 * Create routes
+	 * If authenticated, initialize Sidewheels templates
 	 */
-	public function create_routes() {
-		$routes = new Routes( $this->settings );
-		$routes->create();
+	public function initialize_templates() {
+
+		$authenticator       = new Authenticator( $this->settings() );
+		$template_controller = new Template_Controllers( $this->settings(), $authenticator );
+
+		$this->loader->add_action( 'template_redirect', $template_controller, 'initialize', 0 );
+
 	}
 
 	/**
 	 * Create post types & taxonomies
 	 */
 	public function create_post_types() {
-		$cpts = new Custom_Post_Types( $this->settings );
-		$cpts->create_post_types();
-		$cpts->create_taxonomies();
+
+		$cpts = new Custom_Post_Types( $this->settings() );
+		$this->loader->add_action( 'init', $cpts, 'create_post_types' );
+		$this->loader->add_action( 'init', $cpts, 'create_taxonomies' );
+
 	}
 
 	/**
@@ -97,6 +96,7 @@ class Sidewheels {
 	 * Add roles
 	 */
 	public function add_roles() {
+
 		foreach ( $this->settings()->get( 'roles' ) as $role_name => $role ) {
 			add_role( $role_name, $role['label'] );
 			$role_obj = get_role( $role_name );
@@ -110,22 +110,49 @@ class Sidewheels {
 				}
 			}
 		}
+
 	}
 
 	/**
 	 * Create routes, add roles & flush rewrite rules on installation
 	 */
 	public function install() {
+
 		$this->create_routes();
 		$this->add_roles();
 		flush_rewrite_rules();
+
 	}
 
 	/**
 	 * Remove roles on uninstall
 	 */
 	public function uninstall() {
+
 		flush_rewrite_rules();
+
+	}
+
+	/**
+	 * Let loader object register the filters and actions with WordPress.
+	 *
+	 * @return void
+	 */
+	public function run() {
+
+		$this->loader->run();
+
+	}
+
+	/**
+	 * Get loader object
+	 *
+	 * @return Loader
+	 */
+	public function get_loader() {
+
+		return $this->loader;
+
 	}
 
 }

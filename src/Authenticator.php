@@ -19,7 +19,9 @@ class Authenticator {
 	 * @param Settings $settings Sidewheel settings.
 	 */
 	public function __construct( Settings $settings ) {
+
 		$this->settings = $settings;
+
 	}
 
 	/**
@@ -28,14 +30,17 @@ class Authenticator {
 	 * @return boolean
 	 */
 	public function requires_authentication() {
+
 		$sidewheels_endpoint = $this->settings->query_var( 'sidewheels_endpoint' );
+
 		if ( $this->settings->is_sidewheels_page() ) {
-			$capabilities     = $this->settings->get_matching( 'endpoints', 'capability', $sidewheels_endpoint );
+			$capabilities = $this->settings->matching_endpoint_values( 'capability', $sidewheels_endpoint );
 			if ( ! empty( $capabilities ) && 'read_posts' != $capabilities[0] ) {
 				return true;
 			}
 		}
 		return false;
+
 	}
 
 	/**
@@ -44,13 +49,14 @@ class Authenticator {
 	 * @return boolean
 	 */
 	public function user_can_view() {
+
 		$authorized = false;
 		$sidewheels_endpoint    = $this->settings->query_var( 'sidewheels_endpoint' );
 
 		if ( ! $this->requires_authentication() ) {
 			$authorized = true;
 		} else {
-			$capabilities = $this->settings->get_matching( 'endpoints', 'capability', $sidewheels_endpoint );
+			$capabilities = $this->settings->matching_endpoint_values( 'capability', $sidewheels_endpoint );
 
 			if ( empty( $capabilities ) || current_user_can( $capabilities[0] ) || current_user_can( 'manage_options' ) ) {
 				$authorized = true;
@@ -58,5 +64,6 @@ class Authenticator {
 		}
 
 		return apply_filters( 'sidewheels_user_can_view', $authorized, $sidewheels_endpoint, $this->settings->query_var() );
+
 	}
 }

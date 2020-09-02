@@ -1,5 +1,5 @@
 <?php // phpcs:ignore
-namespace Otomaties\WP_Sidewheels;
+namespace Otomaties\WP_Sidewheels\Abstracts;
 
 /**
  * Logic for Sidewheels post types

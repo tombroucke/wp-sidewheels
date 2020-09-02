@@ -41,6 +41,28 @@ class Routes {
 	}
 
 	/**
+	 * Add query args for custom routing
+	 *
+	 * @param  array $vars WP query vars.
+	 * @return array
+	 */
+	public function custom_query_vars( $vars ) {
+		$vars[] = 'sidewheels_endpoint';
+
+		// All handles for [id] endpoints.
+		$endpoints = $this->settings->get( 'endpoints' );
+		array_walk_recursive(
+			$endpoints,
+			function( $endpoint, $key ) use ( &$vars ) {
+				if ( 'handle' == $key ) {
+					$vars[] = $endpoint;
+				}
+			}
+		);
+		return $vars;
+	}
+
+	/**
 	 * Iterate endpoints & add rewrite rule for each one
 	 *
 	 * @param array $endpoints array with config's endpoints.

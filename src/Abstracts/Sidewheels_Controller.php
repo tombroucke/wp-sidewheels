@@ -1,5 +1,7 @@
 <?php // phpcs:ignore
-namespace Otomaties\WP_Sidewheels;
+namespace Otomaties\WP_Sidewheels\Abstracts;
+
+use Otomaties\WP_Sidewheels\Settings;
 
 use \Twig\Loader\FilesystemLoader;
 use \Twig\Environment;
@@ -22,7 +24,7 @@ abstract class Sidewheels_Controller {
 	 *
 	 * @param Settings $settings WP Sidewheels settings.
 	 */
-	public function __construct( Settings $settings ) {
+	public function set_settings( Settings $settings ) {
 		$this->settings = $settings;
 	}
 

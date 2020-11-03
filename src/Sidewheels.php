@@ -118,7 +118,6 @@ class Sidewheels {
 	 */
 	public function install() {
 
-		$this->create_routes();
 		$this->add_roles();
 		flush_rewrite_rules();
 

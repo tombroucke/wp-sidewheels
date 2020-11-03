@@ -18,7 +18,7 @@ abstract class Sidewheels_Post_Type {
 	 *
 	 * @param integer $id Post ID.
 	 */
-	public function __construct( $id ) {
+	public function __construct( int $id ) {
 		$this->ID = $id;
 	}
 
@@ -50,6 +50,10 @@ abstract class Sidewheels_Post_Type {
 	 */
 	public function get_field( $key ) {
 		return get_field( $key, $this->get_ID() );
+	}
+
+	public function get_date( $format = '' ) {
+		return get_the_date( $format, $this->get_ID() );
 	}
 
 	/**
@@ -123,5 +127,56 @@ abstract class Sidewheels_Post_Type {
 	 */
 	public function get_url() {
 		return get_the_permalink( $this->get_ID() );
+	}
+
+	abstract public static function post_type();
+
+	public static function find( $args = array(), $limit = -1, $paged = 0 ) {
+		$class = get_called_class();
+		$defaults = array(
+			'post_type' => static::post_type(),
+			'posts_per_page' => $limit,
+			'paged' => $paged
+		);
+		$args = wp_parse_args( $args, $defaults );
+		
+		// Shouldn't be overridden.
+		$args['fields'] = 'ids';
+
+		$post_ids = get_posts( $args );
+		return array_map(
+			function( $post_id ) use ( $class ) {
+				return new $class( $post_id );
+			},
+			$post_ids
+		);
+
+	}
+
+	public static function find_one( $args = array() ) {
+
+		$args['posts_per_page'] = 1;
+		$result = self::find( $args );
+		if ( empty( $result ) ) {
+			return false;
+		}
+		return $result[0];
+
+	}
+
+	public static function insert( $args ) {
+
+		$class = get_called_class();
+		$defaults = array(
+			'post_type' => static::post_type(),
+			'post_status' => 'publish',
+			'post_title' => '',
+			'post_content' => '',
+		);
+
+		$args = wp_parse_args( $args, $defaults );
+		$post_id = wp_insert_post( $args );
+
+		return new $class( $post_id );
 	}
 }

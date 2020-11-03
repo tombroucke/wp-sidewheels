@@ -155,7 +155,6 @@ class Settings {
 	public function query_var( $var = null ) {
 
 		global $wp_query;
-
 		// no variable: return all vars.
 		if ( ! $var && $wp_query ) {
 			return $wp_query->query_vars;

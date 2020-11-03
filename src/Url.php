@@ -26,9 +26,10 @@ class Url {
 	 * @param array    $path     Desired path.
 	 * @param Settings $settings Sidewheel settings.
 	 */
-	public function __construct( array $path, Settings $settings ) {
+	public function __construct( array $path, Settings $settings, array $replacements = array() ) {
 		$this->path = $path;
 		$this->settings = $settings;
+		$this->replacements = $replacements;
 	}
 
 	/**
@@ -46,7 +47,12 @@ class Url {
 		$count = count( $this->path );
 		for ( $i = 0; $i <= $count - 1; $i++ ) {
 			if ( isset( $current['handle'] ) ) {
-				$url .= $this->settings->query_var( $current['handle'] ) . '/';
+				if( !empty( $this->replacements ) ) {
+					$url .= array_shift( $this->replacements ) . '/';
+				}
+				else {
+					$url .= $this->settings->query_var( $current['handle'] ) . '/';
+				}
 			} else {
 				$url .= __( $current['slug'], $this->settings->get_textdomain() ) . '/'; // phpcs:ignore
 			}

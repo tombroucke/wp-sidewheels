@@ -80,6 +80,18 @@ abstract class Sidewheels_Controller {
 			}
 		);
 		$functions[] = new TwigFunction(
+			'do_action',
+			function ( ...$args ) {
+				return do_action( ...$args );
+			}
+		);
+		$functions[] = new TwigFunction(
+			'wp_nonce_field',
+			function ( $action, $name = '_wpnonce', $referer = true, $echo = true ) {
+				return wp_nonce_field( $action, $name, $referer, $echo );
+			}
+		);
+		$functions[] = new TwigFunction(
 			'get_stylesheet_directory_uri',
 			function ( $file ) {
 				return get_stylesheet_directory_uri() . $file;

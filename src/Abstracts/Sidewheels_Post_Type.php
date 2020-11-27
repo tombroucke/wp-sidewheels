@@ -121,6 +121,16 @@ abstract class Sidewheels_Post_Type {
 	}
 
 	/**
+	 * Get post name
+	 *
+	 * @return string The post slug.
+	 */
+	public function get_name() {
+		$post_object = get_post( $this->get_ID() );
+		return $post_object->post_name;
+	}
+
+	/**
 	 * Get post url
 	 *
 	 * @return string The permalink.

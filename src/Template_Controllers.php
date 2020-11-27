@@ -108,7 +108,7 @@ class Template_Controllers {
 
 		$post_types  = $this->settings->matching_endpoint_values( 'post_type', $this->sidewheels_endpoint, false );
 		$handles     = $this->settings->matching_endpoint_values( 'handle', $this->sidewheels_endpoint, false );
-
+		
 		foreach ( $handles as $key => $handle ) {
 			$post_type = $post_types[ $key ];
 			if ( $post_type && $handle ) {

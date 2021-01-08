@@ -70,10 +70,9 @@ class Template_Controllers {
 	 * @throws \Exception Default exception.
 	 */
 	public function template_content() {
-
+		
 		$controller_class = $this->settings->endpoint_value( 'controller', $this->sidewheels_endpoint );
 		$template 		  = $this->settings->endpoint_value( 'template', $this->sidewheels_endpoint );
-		$settings         = $this->settings; // Is passed on to controller.
 
 		if ( $controller_class ) {
 
@@ -85,12 +84,12 @@ class Template_Controllers {
 
 			// Load controller from defined path.
 			$controller = new $controller_class();
-			$controller->set_settings( $settings );
+			$controller->set_settings( $this->settings );
 			$controller->render_template();
 		} 
 		elseif ( $template ) {
 			$controller = new SimpleController( $template );
-			$controller->set_settings( $settings );
+			$controller->set_settings( $this->settings );
 			$controller->render_template();
 		}
 		else {
@@ -131,6 +130,27 @@ class Template_Controllers {
 	public function template_include( $template ) {
 
 		do_action( 'sidewheels_template_include' );
+
+		// Check if template == false for endpoints without views.
+		if( $this->settings->endpoint_value( 'template', $this->sidewheels_endpoint, null ) === false ) {
+			$controller_class = $this->settings->endpoint_value( 'controller', $this->sidewheels_endpoint );
+			if ( $controller_class ) {
+
+				$namespace = $this->settings->get( 'namespace' );
+				if ( $namespace ) {
+					$controller_namespace = apply_filters( 'sidewheels_controller_namespace', $namespace . '\\Controllers\\' );
+					$controller_class = $controller_namespace . $controller_class;
+				}
+	
+				// Load controller from defined path.
+				$controller = new $controller_class();
+				$controller->set_settings( $this->settings );
+			} 
+			else {
+				throw new \Exception( sprintf( 'Controller is not defined for %s.', $this->sidewheels_endpoint ), 1 );
+			}
+			return '';
+		}
 
 		// Add main template file.
 		$template = sprintf( '%s/%s.php', $this->settings->get( 'templates' ), 'layout' );

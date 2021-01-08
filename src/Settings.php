@@ -97,10 +97,10 @@ class Settings {
 	 */
 	public function matching_endpoint_values( string $item, string $currentpage, bool $filter_return_array = true ) {
 
-		$pagearray          = explode( '/', $currentpage );
-		$endpoints          = $this->get( 'endpoints' );
-		$current_endpoint   = $endpoints[ $pagearray[0] ];
-		$match              = array();
+		$pagearray        = explode( '/', $currentpage );
+		$endpoints        = $this->get( 'endpoints' );
+		$current_endpoint = $endpoints[ $pagearray[0] ];
+		$match            = array();
 		foreach ( $pagearray as $key => $endpoint ) {
 			if ( isset( $current_endpoint[ $item ] ) ) {
 				$match[] = $current_endpoint[ $item ];
@@ -123,16 +123,17 @@ class Settings {
 	/**
 	 * Get certain key from endpoint
 	 *
-	 * @param  string $item        This key that needs to be found.
-	 * @param  string $currentpage The current path.
+	 * @param  string $item                 This key that needs to be found.
+	 * @param  string $currentpage          The current path.
+	 * @param  mixed  $default_return_value The value to return when no value is found.
 	 * @return string|boolean
 	 */
-	public function endpoint_value( string $item, string $currentpage ) {
+	public function endpoint_value( string $item, string $currentpage, $default_return_value = false ) {
 
 		$pagearray = explode( '/', $currentpage );
 		$endpoints = $this->get( 'endpoints' );
 
-		$current_endpoint   = $endpoints[ $pagearray[0] ];
+		$current_endpoint = $endpoints[ $pagearray[0] ];
 		foreach ( $pagearray as $key => $endpoint ) {
 			if ( ++$key < count( $pagearray ) ) {
 				$current_endpoint = $current_endpoint['children'][ $pagearray[ $key ] ];
@@ -143,7 +144,7 @@ class Settings {
 			return $current_endpoint[ $item ];
 		}
 
-		return false;
+		return $default_return_value;
 	}
 
 	/**
@@ -175,7 +176,7 @@ class Settings {
 	 * @return string|boolean
 	 */
 	public function is_sidewheels_page() {
-
+		
 		return ( $this->query_var( 'sidewheels_endpoint' ) ? true : false );
 
 	}

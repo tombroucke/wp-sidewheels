@@ -176,7 +176,7 @@ class Settings {
 	 * @return string|boolean
 	 */
 	public function is_sidewheels_page() {
-		
+
 		return ( $this->query_var( 'sidewheels_endpoint' ) ? true : false );
 
 	}

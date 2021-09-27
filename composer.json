@@ -1,13 +1,11 @@
 {
-    "name": "tombroucke/wp-sidewheels",
+    "name": "tombroucke/sidewheels",
     "description": "Framework for developing application in your WP install.",
     "autoload": {
         "psr-4": {
-            "Otomaties\\WP_Sidewheels\\": "src/"
+            "Otomaties\\Sidewheels\\": "src/"
         },
-        "files": [
-            "src/functions.php"
-        ]
+        "files": ["src/functions.php"]
     },
     "require": {
         "twig/twig": "^3.0",

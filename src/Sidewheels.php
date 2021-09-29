@@ -2,14 +2,35 @@
 
 namespace Otomaties\Sidewheels;
 
+/**
+ * Register routes, post types, taxonomies, roles etc. from configuration file
+ */
 class Sidewheels
 {
-
+    /**
+     * Holds the instance of this class
+     *
+     * @var mixed
+     */
     private static $instance = null;
 
-    private $rootPath;
+    /**
+     * Rootpath of the WordPress plugin
+     *
+     * @var string
+     */
+    private $rootPath = '';
+    
+    /**
+     * Configuration object
+     *
+     * @var Config
+     */
     private $config;
 
+    /**
+     * Initialize sidewheels
+     */
     public function __construct()
     {
         $reflection = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
@@ -22,43 +43,83 @@ class Sidewheels
         $this->initTaxonomies();
     }
 
-    public function initRoutes()
+    /**
+     * Register routes
+     *
+     * @return void
+     */
+    public function initRoutes() : void
     {
-        if (!empty($this->config()->routes())) {
-            foreach ($this->config()->routes() as $route) {
-                $endpoint = $route['endpoint'];
-                $controller = $route['controller'];
+        $routes = $this->config()->routes();
+        if (!empty($routes)) {
+            $router = Router::getInstance();
+            foreach ($routes as $route) {
+                $path   = $route['path'];
+                $callback = $route['callback'];
                 $capability = isset($route['capability']) ? $route['capability'] : null;
-                $method = isset($route['method']) ? $route['method'] : 'GET';
+                $method     = isset($route['method']) ? $route['method'] : 'GET';
 
-                Router::addRoute($endpoint, $controller, $capability, $method);
+                switch ($method) {
+                    case 'POST':
+                        $route = Route::post($path, $callback);
+                        break;
+                    default:
+                        $route = Route::get($path, $callback);
+                        break;
+                }
+
+                if ($capability) {
+                    $route->requireCapability($capability);
+                }
             }
         }
     }
 
-    public function initPostTypes()
+    /**
+     * Register post types if present in config file
+     *
+     * @return void
+     */
+    public function initPostTypes() : void
     {
-        if (!empty($this->config()->postTypes())) {
-            foreach ($this->config()->postTypes() as $key => $postType) {
+        $postTypes = $this->config()->postTypes();
+        if (!empty($postTypes)) {
+            foreach ($postTypes as $key => $postType) {
                 CustomPostType::add($key, $postType['args']);
             }
         }
     }
 
-    public function initTaxonomies()
+    /**
+     * Register taxonomies if present in config file
+     *
+     * @return void
+     */
+    public function initTaxonomies() : void
     {
-        if (!empty($this->config()->taxonomies())) {
-            foreach ($this->config()->taxonomies() as $name => $taxonomy) {
+        $taxonomies = $this->config()->taxonomies();
+        if (!empty($taxonomies)) {
+            foreach ($taxonomies as $name => $taxonomy) {
                 CustomTaxonomy::add($name, $taxonomy['singular_label'], $taxonomy['plural_label'], $taxonomy['post_type'], $taxonomy['options']);
             }
         }
     }
 
-    public function config()
+    /**
+     * Get app configuration
+     *
+     * @return Config
+     */
+    public function config() : Config
     {
         return $this->config;
     }
 
+    /**
+     * Get instance of Sidewheels
+     *
+     * @return void
+     */
     public static function getInstance()
     {
         if (self::$instance == null) {

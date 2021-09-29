@@ -35,7 +35,8 @@ abstract class Post
     public function validatePostType()
     {
         if (get_post_type($this->getId()) != $this->postType()) {
-            throw new \Exception(sprintf('%s is not a valid %s ID', $this->getId(), $this->postType()), 1);
+            // TODO: check if theres a better way to display an error message. 404?
+            die(sprintf('<code>%s is not a valid %s ID</code>', $this->getId(), $this->postType()));
         }
     }
 

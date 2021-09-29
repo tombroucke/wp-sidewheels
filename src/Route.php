@@ -7,31 +7,104 @@ class Route
 
     private $path;
     private $callback;
-    private $capability;
-    private $methods;
+    private $capability = false;
+    private $method;
     private $params = [];
 
-    public function __construct(string $path, mixed $callback, mixed $capability, mixed $method)
+    /**
+     * Undocumented variable
+     *
+     * @var Router
+     */
+    private $router;
+
+    public function __construct(string $path, mixed $callback, string $method)
     {
         $this->path = $path;
         $this->callback = $callback;
-        $this->capability = $capability;
-        $this->methods = (array)$method;
+        $this->method = $method;
+        $this->router = Router::getInstance();
         
         $this->registerRoute();
-        $this->templateController();
     }
 
-    public function path() {
+    public static function get(string $path, mixed $callback) {
+        return new Route($path, $callback, 'GET');
+    }
+
+    public static function post(string $path, mixed $callback) {
+        return new Route($path, $callback, 'POST');
+    }
+
+    public static function delete(string $path, mixed $callback) {
+        return new Route($path, $callback, 'DELETE');
+    }
+
+    public static function put(string $path, mixed $callback) {
+        return new Route($path, $callback, 'PUT');
+    }
+
+    /**
+     * Get path for this route
+     *
+     * @return string
+     */
+    public function path() : string
+    {
         return $this->path;
     }
 
-    public function get($param) {
-        $params = $this->params();
+    /**
+     * Get supported methods
+     *
+     * @return string
+     */
+    public function method() : string
+    {
+        return $this->method;
+    }
+
+    public function callback() : mixed 
+    {
+        return $this->callback;
+    }
+
+    public function capability() : mixed 
+    {
+        return $this->capability;
+    }
+    
+    /**
+     * Get value of route parameter
+     *
+     * @param string $param
+     * @return mixed
+     */
+    public function parameter(string $param) : mixed
+    {
+        $params = $this->parameters();
         return isset($params[$param]) ? $params[$param] : false;
     }
 
-    public function params()
+    /**
+     * Add parameter to params
+     *
+     * @param string $param
+     * @return void
+     */
+    private function addParameter(string $param) : void
+    {
+        if (!in_array($param, $this->params)) {
+            $this->params[] = $param;
+        }
+    }
+    
+    /**
+     * Get key->value pair of route parameters
+     *
+     * @return array
+     */
+    public function parameters() : array
     {
         $return = [];
         foreach ($this->params as $param) {
@@ -41,19 +114,15 @@ class Route
         return $return;
     }
 
-    public function addParam($param)
+    /**
+     * Add route parameters to query vars & route parameters, add rewrite rule
+     *
+     * @return void
+     */
+    private function registerRoute() : void
     {
-        if (!in_array($param, $this->params)) {
-            $this->params[] = $param;
-        }
-    }
-
-    public function registerRoute()
-    {
-        $this->addQueryVar('sidewheels_endpoint');
-
         $pathParts = explode('/', $this->path);
-        $redirect = 'index.php?sidewheels_endpoint=' . $this->path;
+        $redirect = 'index.php?sidewheels_route=' . $this->path;
 
         foreach ($pathParts as &$pathPart) {
             $pattern = '/{(.*?)}/';
@@ -65,15 +134,22 @@ class Route
 
                 $redirect .= sprintf('&%s=$matches[%d]', $queryVarName, ++$matchesIndex);
                 $this->addQueryVar($queryVarName);
-                $this->addParam($queryVarName);
+                $this->addParameter($queryVarName);
             }
         }
         
-        $regex = '^' . implode('/', $pathParts) . '?$';
+        $regex = sprintf('^%s?$', implode('/', $pathParts));
         add_rewrite_rule($regex, $redirect, 'top');
+        $this->router->registerRoute($this);
     }
 
-    public function addQueryVar($var)
+    /**
+     * Add query var
+     *
+     * @param string $var
+     * @return void
+     */
+    private function addQueryVar(string $var) : void
     {
         add_filter('query_vars', function ($query_vars) use ($var) {
             if (!in_array($var, $query_vars)) {
@@ -82,43 +158,30 @@ class Route
             return $query_vars;
         });
     }
-
-    public function templateController()
+    
+    /**
+     * Require the user to be authenticated
+     *
+     * @param string $capability
+     * @return void
+     */
+    public function requireCapability(string $capability)
     {
-        $route = $this;
-        add_action('template_include', function ($template) use ($route) {
-            
-            if (get_query_var('sidewheels_endpoint') != $route->path) {
-                return $template;
-            }
-            if (!in_array($_SERVER['REQUEST_METHOD'], $route->methods)) {
-                printf('This route does not support the %s method.', $_SERVER['REQUEST_METHOD']);
-                die();
-            }
+        $this->capability = $capability;
+    }
 
-            if ($route->capability && !current_user_can($route->capability)) {
-                printf('You don\'t have sufficient permissions to access this resource.', $_SERVER['REQUEST_METHOD']);
-                die();
-            }
-
-            if (!apply_filters('sidewheels_user_has_access', true, $route)) {
-                printf('You don\'t have sufficient permissions to access this resource.', $_SERVER['REQUEST_METHOD']);
-                die();  
-            }
-            
-            if (is_array($route->callback)) {
-                @list($className, $method) = $route->callback;
-                $controller = new $className($route->params());
-                call_user_func_array([$controller, $method], array_values($route->params()));
-            } elseif (is_string($route->callback) && strpos($route->callback, '@') !== false) {
-                @list($className, $method) = explode('@', $route->callback);
-                $controller = new $className();
-                call_user_func_array([$controller, $method], array_values($route->params()));
-                $controller->$method(extract($route->params()));
-            } elseif (is_object($route->callback)) {
-                call_user_func_array($route->callback, array_values($route->params()));
-            }
-            return $template;
-        });
+    public function controller() {
+        if (is_array($this->callback())) {
+            @list($className, $method) = $this->callback();
+            $controller = new $className($this->parameters());
+            return call_user_func_array([$controller, $method], array_values($this->parameters()));
+        } elseif (is_string($this->callback()) && strpos($this->callback(), '@') !== false) {
+            @list($className, $method) = explode('@', $this->callback());
+            $controller = new $className();
+            return call_user_func_array([$controller, $method], array_values($this->parameters()));
+            $controller->$method(extract($this->parameters()));
+        } elseif (is_object($this->callback())) {
+            return call_user_func_array($this->callback(), array_values($route->parameters()));
+        }
     }
 }

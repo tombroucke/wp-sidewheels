@@ -52,10 +52,9 @@ class Sidewheels
     {
         $routes = $this->config()->routes();
         if (!empty($routes)) {
-            $router = Router::getInstance();
             foreach ($routes as $route) {
-                $path   = $route['path'];
-                $callback = $route['callback'];
+                $path       = $route['path'];
+                $callback   = $route['callback'];
                 $capability = isset($route['capability']) ? $route['capability'] : null;
                 $method     = isset($route['method']) ? $route['method'] : 'GET';
 
@@ -63,13 +62,19 @@ class Sidewheels
                     case 'POST':
                         $route = Route::post($path, $callback);
                         break;
+                    case 'DELETE':
+                        $route = Route::delete($path, $callback);
+                        break;
+                    case 'PUT':
+                        $route = Route::put($path, $callback);
+                        break;
                     default:
                         $route = Route::get($path, $callback);
                         break;
                 }
 
                 if ($capability) {
-                    $route->requireCapability($capability);
+                    $route->require($capability);
                 }
             }
         }
@@ -84,8 +89,9 @@ class Sidewheels
     {
         $postTypes = $this->config()->postTypes();
         if (!empty($postTypes)) {
+            $customPostTypes = new CustomPostTypes($this->config);
             foreach ($postTypes as $key => $postType) {
-                CustomPostType::add($key, $postType['args']);
+                $customPostTypes->add($key, $postType['args']);
             }
         }
     }
@@ -99,8 +105,9 @@ class Sidewheels
     {
         $taxonomies = $this->config()->taxonomies();
         if (!empty($taxonomies)) {
+            $customTaxonomies = new CustomTaxonomies($this->config);
             foreach ($taxonomies as $name => $taxonomy) {
-                CustomTaxonomy::add($name, $taxonomy['singular_label'], $taxonomy['plural_label'], $taxonomy['post_type'], $taxonomy['options']);
+                $customTaxonomies->add($name, $taxonomy['singular_label'], $taxonomy['plural_label'], $taxonomy['post_type'], $taxonomy['options']);
             }
         }
     }
@@ -118,9 +125,9 @@ class Sidewheels
     /**
      * Get instance of Sidewheels
      *
-     * @return void
+     * @return Siidewheels
      */
-    public static function getInstance()
+    public static function getInstance() : Sidewheels
     {
         if (self::$instance == null) {
             self::$instance = new Sidewheels();

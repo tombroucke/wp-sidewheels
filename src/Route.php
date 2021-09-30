@@ -5,41 +5,105 @@ namespace Otomaties\Sidewheels;
 class Route
 {
 
+    /**
+     * The route path
+     *
+     * @var string
+     */
     private $path;
+
+    /**
+     * The route
+     *
+     * @var mixed
+     */
     private $callback;
+
+    /**
+     * Optional capability to protect this route
+     *
+     * @var string|false
+     */
     private $capability = false;
+
+    /**
+     * GET, POST, PUT or DELETE
+     *
+     * @var [type]
+     */
     private $method;
+
+    /**
+     * Route parameters
+     *
+     * @var array
+     */
     private $params = [];
 
     /**
-     * Undocumented variable
+     * Router instance
      *
      * @var Router
      */
     private $router;
 
+    /**
+     * Initialize route
+     *
+     * @param string $path
+     * @param mixed $callback
+     * @param string $method
+     */
     public function __construct(string $path, mixed $callback, string $method)
     {
         $this->path = $path;
         $this->callback = $callback;
-        $this->method = $method;
+        $this->method = strtoupper($method);
         $this->router = Router::getInstance();
         
         $this->registerRoute();
     }
 
+    /**
+     * GET request
+     *
+     * @param string $path
+     * @param mixed $callback
+     * @return Route
+     */
     public static function get(string $path, mixed $callback) {
         return new Route($path, $callback, 'GET');
     }
 
+    /**
+     * POST request
+     *
+     * @param string $path
+     * @param mixed $callback
+     * @return Route
+     */
     public static function post(string $path, mixed $callback) {
         return new Route($path, $callback, 'POST');
     }
 
+    /**
+     * DELETE request
+     *
+     * @param string $path
+     * @param mixed $callback
+     * @return Route
+     */
     public static function delete(string $path, mixed $callback) {
         return new Route($path, $callback, 'DELETE');
     }
 
+    /**
+     * PUT request
+     *
+     * @param string $path
+     * @param mixed $callback
+     * @return Route
+     */
     public static function put(string $path, mixed $callback) {
         return new Route($path, $callback, 'PUT');
     }
@@ -55,7 +119,7 @@ class Route
     }
 
     /**
-     * Get supported methods
+     * Get method
      *
      * @return string
      */
@@ -64,11 +128,21 @@ class Route
         return $this->method;
     }
 
+    /**
+     * Get route callback
+     *
+     * @return mixed
+     */
     public function callback() : mixed 
     {
         return $this->callback;
     }
 
+    /**
+     * Get route capability
+     *
+     * @return mixed
+     */
     public function capability() : mixed 
     {
         return $this->capability;
@@ -78,7 +152,7 @@ class Route
      * Get value of route parameter
      *
      * @param string $param
-     * @return mixed
+     * @return string|false
      */
     public function parameter(string $param) : mixed
     {
@@ -165,23 +239,27 @@ class Route
      * @param string $capability
      * @return void
      */
-    public function requireCapability(string $capability)
+    public function require(string $capability)
     {
         $this->capability = $capability;
     }
 
+    /**
+     * Call controller method
+     *
+     * @return void
+     */
     public function controller() {
-        if (is_array($this->callback())) {
-            @list($className, $method) = $this->callback();
-            $controller = new $className($this->parameters());
-            return call_user_func_array([$controller, $method], array_values($this->parameters()));
-        } elseif (is_string($this->callback()) && strpos($this->callback(), '@') !== false) {
-            @list($className, $method) = explode('@', $this->callback());
+        $callback = $this->callback();
+        if (is_array($callback)) {
+            @list($className, $method) = $callback;
             $controller = new $className();
-            return call_user_func_array([$controller, $method], array_values($this->parameters()));
-            $controller->$method(extract($this->parameters()));
-        } elseif (is_object($this->callback())) {
-            return call_user_func_array($this->callback(), array_values($route->parameters()));
+            $callback = [$controller, $method];
+        } elseif (is_string($callback) && strpos($callback, '@') !== false) {
+            @list($className, $method) = explode('@', $callback);
+            $controller = new $className();
+            $callback = [$controller, $method];
         }
+        return call_user_func_array($callback, array_values($this->parameters()));
     }
 }

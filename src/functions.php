@@ -1,9 +1,16 @@
 <?php
 
 if (!function_exists('sidewheelsRoute')) {
-    function sidewheelsRoute($path, $variables = [])
+    /**
+     * Get full url for route
+     *
+     * @param string $path
+     * @param array $replacements
+     * @return string
+     */
+    function sidewheelsRoute(string $path, array $replacements = []) : string
     {
-        foreach ($variables as $key => $value) {
+        foreach ($replacements as $key => $value) {
             $path = str_replace("{{$key}}", $value, $path);
         }
         return home_url('/') . $path;

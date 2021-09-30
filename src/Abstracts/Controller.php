@@ -7,26 +7,63 @@ use \Twig\TwigFunction;
 
 abstract class Controller
 {
-    public function render($template, ...$params)
+    /**
+     * Render template outside of website layout
+     *
+     * @param string $template The template path
+     * @param array $params Optional parameters to be used in the template
+     * @return void
+     */
+    final public function render(string $template, ...$params)
     {
-        do_action('sidewheel_before_template_full');
-        self::partial($template, $params);
-        do_action('sidewheel_after_template_full');
+        do_action('sidewheel_before_template_full', $template, $params);
+        $this->partial($template, $params);
+        do_action('sidewheel_after_template_full', $template, $params);
         die();
     }
 
-    public function renderContent($template, ...$params)
+    /**
+     * Return template for shortcode
+     *
+     * @param string $template The template path
+     * @param array $params Optional parameters to be used in the template
+     * @return void
+     */
+    final public function renderShortcode(string $template, ...$params)
+    {
+        ob_start();
+        do_action('sidewheel_before_template_shortcode', $template, $params);
+        $this->partial($template, $params);
+        do_action('sidewheel_after_template_shortcode', $template, $params);
+        return ob_get_clean();
+    }
+
+    /**
+     * Render template instead of the_content
+     *
+     * @param string $template The template path
+     * @param array $params Optional parameters to be used in the template
+     * @return void
+     */
+    final public function renderContent(string $template, ...$params)
     {
         add_action('the_content', function () use ($template, $params) {
             if (is_main_query()) {
-                do_action('sidewheel_before_template_partial');
-                self::partial($template, $params);
-                do_action('sidewheel_after_template_partial');
+                do_action('sidewheel_before_template_content', $template, $params);
+                $this->partial($template, $params);
+                do_action('sidewheel_after_template_content', $template, $params);
             }
         });
     }
 
-    public static function partial($template, $params = [])
+    /**
+     * Render out the twig template
+     *
+     * @param string $template The template path
+     * @param array $params Optional parameters to be used in the template
+     * @return void
+     */
+    final public function partial(string $template, array $params = []) : void
     {
         $params = empty($params) ? $params : $params[0];
         $sidewheels = Sidewheels::getInstance();
@@ -54,12 +91,6 @@ abstract class Controller
             }
         );
         $functions[] = new TwigFunction(
-            'print_r',
-            function ($array) {
-                return print_r($array);
-            }
-        );
-        $functions[] = new TwigFunction(
             'do_action',
             function (...$args) {
                 return do_action(...$args);
@@ -77,13 +108,55 @@ abstract class Controller
                 return wp_nonce_field($action, $name, $referer, $echo);
             }
         );
+        $functions[] = new TwigFunction(
+            'home_url',
+            function ($path = '/') {
+                return home_url($path);
+            }
+        );
+        $functions[] = new TwigFunction(
+            'get_permalink',
+            function ($path = '/') {
+                return get_permalink($path);
+            }
+        );
+        $functions[] = new TwigFunction(
+            'get_delete_post_link',
+            function ($id, $deprecated = '', $force_delete = false) {
+                return get_delete_post_link($id, '', $force_delete);
+            }
+        );
+        $functions[] = new TwigFunction(
+            'wpautop',
+            function ($content) {
+                return wpautop($content);
+            }
+        );
+        $functions[] = new TwigFunction(
+            'get_comment_date',
+            function ($format = '', $comment_id = 0) {
+                return get_comment_date($format, $comment_id);
+            }
+        );
+        $functions[] = new TwigFunction(
+            'get_the_date',
+            function ($format = '', $post = null) {
+                return get_the_date($format, $post);
+            }
+        );
+        $functions[] = new TwigFunction(
+            'wp_get_attachment_image_url',
+            function ($attachmentId, $size = 'thumbnail', $icon = false) {
+                return wp_get_attachment_image_url($attachmentId, $size, $icon);
+            }
+        );
     
         foreach (apply_filters('sidewheels_twig_functions', $functions) as $key => $function) {
             $twig->addFunction($function);
         }
 
-        do_action('sidewheel_before_template');
+        do_action('sidewheel_before_template', $template, $params);
         echo $twig->render($template, $params);
-        do_action('sidewheel_after_template');
+        do_action('sidewheel_after_template', $template, $params);
     }
 }

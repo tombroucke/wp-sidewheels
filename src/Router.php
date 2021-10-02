@@ -28,6 +28,7 @@ class Router
     {
         $this->init();
         $this->locateController();
+        $this->virtualPageQuery();
     }
 
     /**
@@ -36,7 +37,7 @@ class Router
      *
      * @return void
      */
-    public function init()
+    private function init()
     {
         add_filter('query_vars', function ($query_vars) {
             if (!in_array('sidewheels_route', $query_vars)) {
@@ -51,17 +52,11 @@ class Router
      *
      * @return void
      */
-    public function locateController()
+    private function locateController() : void
     {
         add_action('template_include', function ($template) {
-            $sidewheelsRoute = get_query_var('sidewheels_route');
-            if (!$sidewheelsRoute) {
-                return $template;
-            }
-
-            $route = $this->match($sidewheelsRoute, $_SERVER['REQUEST_METHOD']);
-            // Check if route is found and if user has required capability
-            if ($route && (!$route->capability() || current_user_can($route->capability()) || apply_filters('sidewheels_user_has_access', false, $route))) {
+            $route = $this->currentSidewheelsRoute();
+            if ($route) {
                 $route->controller();
 
                 // Only continue rendering template when method is GET.
@@ -75,12 +70,71 @@ class Router
     }
 
     /**
+     * Find current sidewheels route (using query var & $_SERVER request method)
+     *
+     * @return Route|null
+     */
+    public function currentSidewheelsRoute() : ?Route
+    {
+        $route = $this->match(get_query_var('sidewheels_route'), $_SERVER['REQUEST_METHOD']);
+        if (!$route || !$route->hasAccess(get_current_user_id())) {
+            return null;
+        }
+        return $route;
+    }
+
+    /**
+     * Mock wp_query to show as page
+     *
+     * @return void
+     */
+    private function virtualPageQuery() : void
+    {
+        add_filter('the_posts', function ($posts) {
+            $route = $this->currentSidewheelsRoute();
+            if (!$route) {
+                return $posts;
+            }
+
+            global $wp, $wp_query;
+            $pageObject = $route->pageObject(sidewheelsRoute($route->path(), $route->parameters()));
+            
+            // update wp_query properties to simulate a found page
+            $wp_query->is_page = true;
+            $wp_query->is_singular = true;
+            $wp_query->is_home = false;
+            $wp_query->is_archive = false;
+            $wp_query->is_category = false;
+            $wp->query = array();
+            $wp_query->query_vars['error'] = '';
+            $wp_query->is_404 = false;
+        
+            $wp_query->current_post = $pageObject->ID;
+            $wp_query->found_posts = 1;
+            $wp_query->post_count = 1;
+            $wp_query->comment_count = 0;
+            $wp_query->current_comment = null;
+            $wp_query->is_singular = 1;
+        
+            $wp_query->post = $pageObject;
+            $wp_query->posts = array($pageObject);
+            $wp_query->queried_object = $pageObject;
+            $wp_query->queried_object_id = $pageObject->ID;
+            $wp_query->current_post = $pageObject->ID;
+            $wp_query->post_count = 1;
+            unset($wp_query->query['error']);
+        
+            return array($pageObject);
+        });
+    }
+
+    /**
      * Register route to router
      *
      * @param Route $route
      * @return void
      */
-    public function registerRoute(Route $route)
+    public function registerRoute(Route $route) : void
     {
         $this->routes[] = $route;
     }
@@ -92,14 +146,14 @@ class Router
      * @param String $method
      * @return Route|false
      */
-    public function match(String $path, String $method)
+    public function match(String $path, String $method) : ?Route
     {
         foreach ($this->routes as $route) {
             if ($route->method() == $method && $route->path() == $path) {
                 return $route;
             }
         }
-        return false;
+        return null;
     }
 
     /**

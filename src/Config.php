@@ -102,4 +102,21 @@ class Config
     {
         return $this->config['taxonomies'];
     }
+
+    /**
+     * Find route in config by key => value
+     *
+     * @param string $key
+     * @param string $value
+     * @return array\null
+     */
+    public function findRouteBy($key, $value) : ?array
+    {
+        $routes = $this->routes();
+        $routeKey = array_search($value, array_column($routes, $key));
+        if ($routeKey !== false) {
+            return $routes[$routeKey];
+        }
+        return null;
+    }
 }

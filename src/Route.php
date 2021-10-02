@@ -47,6 +47,8 @@ class Route
      */
     private $router;
 
+    private $wpPost;
+
     /**
      * Initialize route
      *
@@ -71,7 +73,8 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function get(string $path, mixed $callback) {
+    public static function get(string $path, mixed $callback)
+    {
         return new Route($path, $callback, 'GET');
     }
 
@@ -82,7 +85,8 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function post(string $path, mixed $callback) {
+    public static function post(string $path, mixed $callback)
+    {
         return new Route($path, $callback, 'POST');
     }
 
@@ -93,7 +97,8 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function delete(string $path, mixed $callback) {
+    public static function delete(string $path, mixed $callback)
+    {
         return new Route($path, $callback, 'DELETE');
     }
 
@@ -104,7 +109,8 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function put(string $path, mixed $callback) {
+    public static function put(string $path, mixed $callback)
+    {
         return new Route($path, $callback, 'PUT');
     }
 
@@ -133,7 +139,7 @@ class Route
      *
      * @return mixed
      */
-    public function callback() : mixed 
+    public function callback() : mixed
     {
         return $this->callback;
     }
@@ -143,7 +149,7 @@ class Route
      *
      * @return mixed
      */
-    public function capability() : mixed 
+    public function capability() : mixed
     {
         return $this->capability;
     }
@@ -249,7 +255,8 @@ class Route
      *
      * @return void
      */
-    public function controller() {
+    public function controller()
+    {
         $callback = $this->callback();
         if (is_array($callback)) {
             @list($className, $method) = $callback;
@@ -261,5 +268,58 @@ class Route
             $callback = [$controller, $method];
         }
         return call_user_func_array($callback, array_values($this->parameters()));
+    }
+
+    /**
+     * Post object for custom route
+     *
+     * @param string $guid
+     * @return void
+     */
+    public function pageObject(string $guid = null) : \stdClass
+    {
+        if (!$guid) {
+            $guid = home_url('/');
+        }
+        $pathArray = explode('/', $this->path());
+        $title = !empty($pathArray) ? ucfirst($pathArray[0]) : '';
+
+        $post                        = new \stdClass;
+        $post->ID                    = -1;
+        $post->post_author           = 1;
+        $post->post_date             = current_time('mysql');
+        $post->post_date_gmt         = current_time('mysql', 1);
+        $post->post_content          = '';
+        $post->post_title            = apply_filters('sidewheels_route_title', $title, $this);
+        $post->post_excerpt          = '';
+        $post->post_status           = 'publish';
+        $post->comment_status        = 'closed';
+        $post->ping_status           = 'closed';
+        $post->post_password         = '';
+        $post->post_name             = $this->path();
+        $post->to_ping               = '';
+        $post->pinged                = '';
+        $post->modified              = $post->post_date;
+        $post->modified_gmt          = $post->post_date_gmt;
+        $post->post_content_filtered = '';
+        $post->post_parent           = 0;
+        $post->guid                  = $guid;
+        $post->menu_order            = 0;
+        $post->post_type             = 'page';
+        $post->post_mime_type        = '';
+        $post->comment_count         = 0;
+        return $post;
+    }
+
+    /**
+     * Check if user has access to this route
+     *
+     * @param integer $userId
+     * @return boolean
+     */
+    public function hasAccess(int $userId) : bool
+    {
+        $hasAccess = $this->capability() ? user_can($userId, $this->capability()) : true;
+        return apply_filters('sidewheels_user_has_access', $hasAccess, $this);
     }
 }

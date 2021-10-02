@@ -41,6 +41,7 @@ class Sidewheels
         $this->initRoutes();
         $this->initPostTypes();
         $this->initTaxonomies();
+        $this->routeTitle();
     }
 
     /**
@@ -48,7 +49,7 @@ class Sidewheels
      *
      * @return void
      */
-    public function initRoutes() : void
+    private function initRoutes() : void
     {
         $routes = $this->config()->routes();
         if (!empty($routes)) {
@@ -85,7 +86,7 @@ class Sidewheels
      *
      * @return void
      */
-    public function initPostTypes() : void
+    private function initPostTypes() : void
     {
         $postTypes = $this->config()->postTypes();
         if (!empty($postTypes)) {
@@ -101,7 +102,7 @@ class Sidewheels
      *
      * @return void
      */
-    public function initTaxonomies() : void
+    private function initTaxonomies() : void
     {
         $taxonomies = $this->config()->taxonomies();
         if (!empty($taxonomies)) {
@@ -122,10 +123,20 @@ class Sidewheels
         return $this->config;
     }
 
+    private function routeTitle() {
+        add_filter('sidewheels_route_title', function ($title, $route) {
+            $routeArray = $this->config()->findRouteBy('path', $route->path());
+            if (!$routeArray || !isset($routeArray['title'])) {
+                return $title;
+            }
+            return sidewheelsReplaceRouteParameters($routeArray['title'], $route->parameters());
+        }, 10, 2);
+    }
+
     /**
      * Get instance of Sidewheels
      *
-     * @return Siidewheels
+     * @return Sidewheels
      */
     public static function getInstance() : Sidewheels
     {

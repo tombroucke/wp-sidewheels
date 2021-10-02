@@ -10,9 +10,16 @@ if (!function_exists('sidewheelsRoute')) {
      */
     function sidewheelsRoute(string $path, array $replacements = []) : string
     {
-        foreach ($replacements as $key => $value) {
-            $path = str_replace("{{$key}}", $value, $path);
+        return home_url('/') . sidewheelsReplaceRouteParameters($path, $replacements);
+    }
+}
+
+if (!function_exists('sidewheelsReplaceRouteParameters')) {
+    function sidewheelsReplaceRouteParameters(string $string, array $parameters) : string
+    {
+        foreach ($parameters as $key => $value) {
+            $string = str_replace("{{$key}}", $value, $string);
         }
-        return home_url('/') . $path;
+        return $string;
     }
 }

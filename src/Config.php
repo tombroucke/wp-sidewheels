@@ -49,6 +49,7 @@ class Config
             'routes'        => [],
             'postTypes'     => [],
             'taxonomies'    => [],
+            'roles'    => [],
         ];
         return wp_parse_args(include($this->configPath), $defaults);
     }
@@ -101,6 +102,16 @@ class Config
     public function taxonomies() : array
     {
         return $this->config['taxonomies'];
+    }
+
+    /**
+     * Custom roles to be registered
+     *
+     * @return array
+     */
+    public function roles() : array
+    {
+        return $this->config['roles'];
     }
 
     /**

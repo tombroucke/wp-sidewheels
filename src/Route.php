@@ -47,8 +47,6 @@ class Route
      */
     private $router;
 
-    private $wpPost;
-
     /**
      * Initialize route
      *
@@ -257,12 +255,12 @@ class Route
      */
     public function controller()
     {
-        $callback = $this->callback();
-        if (is_array($callback)) {
+        $callback = $this->callback();// eg. function(){echo "test"}
+        if (is_array($callback)) { // eg. ['Namespace\Controllers\Admin', 'index']
             @list($className, $method) = $callback;
             $controller = new $className();
             $callback = [$controller, $method];
-        } elseif (is_string($callback) && strpos($callback, '@') !== false) {
+        } elseif (is_string($callback) && strpos($callback, '@') !== false) { // eg. ['Namespace\Controllers\Admin@index']
             @list($className, $method) = explode('@', $callback);
             $controller = new $className();
             $callback = [$controller, $method];
@@ -319,6 +317,7 @@ class Route
      */
     public function hasAccess(int $userId) : bool
     {
+        // If this->capability is null, users should have access
         $hasAccess = $this->capability() ? user_can($userId, $this->capability()) : true;
         return apply_filters('sidewheels_user_has_access', $hasAccess, $this);
     }

@@ -83,10 +83,11 @@ class Sidewheels
 
     /**
      * Register post types if present in config file
+     * Should be public in order to invoke during activation
      *
      * @return void
      */
-    private function initPostTypes() : void
+    public function initPostTypes() : void
     {
         $postTypes = $this->config()->postTypes();
         if (!empty($postTypes)) {
@@ -123,7 +124,8 @@ class Sidewheels
         return $this->config;
     }
 
-    private function routeTitle() {
+    private function routeTitle()
+    {
         add_filter('sidewheels_route_title', function ($title, $route) {
             $routeArray = $this->config()->findRouteBy('path', $route->path());
             if (!$routeArray || !isset($routeArray['title'])) {
@@ -131,6 +133,50 @@ class Sidewheels
             }
             return sidewheelsReplaceRouteParameters($routeArray['title'], $route->parameters());
         }, 10, 2);
+    }
+    
+    /**
+     * Add roles
+     * Should be public in order to invoke during activation
+     *
+     * @return void
+     */
+    public function initRoles() : void
+    {
+
+        foreach ($this->config()->roles() as $role_name => $role) {
+            add_role($role_name, $role['label']);
+            $role_obj = get_role($role_name);
+            if (isset($role['capabilities']) && ! empty($role['capabilities'])) {
+                foreach ($role['capabilities'] as $cap => $hasCap) {
+                    if ($hasCap) {
+                        $role_obj->add_cap($cap);
+                    } else {
+                        $role_obj->remove_cap($cap);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Create routes, add roles & flush rewrite rules on installation
+     */
+    public function install()
+    {
+
+        $this->initPostTypes();
+        $this->initRoles();
+        flush_rewrite_rules();
+    }
+
+    /**
+     * Remove roles on uninstall
+     */
+    public function uninstall()
+    {
+
+        flush_rewrite_rules();
     }
 
     /**

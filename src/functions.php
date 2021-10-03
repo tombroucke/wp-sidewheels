@@ -15,11 +15,33 @@ if (!function_exists('sidewheelsRoute')) {
 }
 
 if (!function_exists('sidewheelsReplaceRouteParameters')) {
+    /**
+     * Replace routeparameters in a string
+     *
+     * @param string $string
+     * @param array $parameters
+     * @return void
+     */
     function sidewheelsReplaceRouteParameters(string $string, array $parameters) : string
     {
         foreach ($parameters as $key => $value) {
             $string = str_replace("{{$key}}", $value, $string);
         }
         return $string;
+    }
+}
+
+if (! function_exists('sidewheelsCurrentUrl')) {
+    /**
+     * Get the current url
+     *
+     * @return string
+     */
+    function sidewheelsCurrentUrl() : string
+    {
+        $protocol    = isset($_SERVER['HTTPS']) ? 'https' : 'http';
+        $host        = filter_input(INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING);
+        $request_uri = filter_input(INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_STRING);
+        return $protocol . '://' . $host . $request_uri;
     }
 }

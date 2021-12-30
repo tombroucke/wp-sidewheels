@@ -31,7 +31,7 @@ class CustomTaxonomies
      * @param string $postType     The post type for this new taxonomy.
      * @param array  $options       Custom options.
      */
-    public function add(string $name, string $singularName, string $pluralName, string $postType, array $defaultArgs = array())
+    public function add(string $name, string $singularName, string $pluralName, string $postType, array $defaultArgs = [])
     {
         $labels = array(
             'name'              => ucfirst($pluralName),

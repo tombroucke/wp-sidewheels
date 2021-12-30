@@ -1,6 +1,6 @@
 # WP Sidewheels
 
-This package provides an easy way to create custom routes (MVC), roles, CPT's, ... using a config file.
+This package provides an easy way to create custom routes (MVC), roles, Custom post types, ... using a config file.
 
 ## Installation
 
@@ -10,17 +10,37 @@ This package provides an easy way to create custom routes (MVC), roles, CPT's, .
 
 ### Initialize sidewheels your plugin:
 
-`Sidewheels::getInstance();`
+```php
+use Otomaties\Sidewheels\Sidewheels;
+
+add_action('init', function(){
+	Sidewheels::getInstance();
+});
+```
 
 ### Add to your plugin activation hook:
+```php
+use Otomaties\Sidewheels\Sidewheels;
 
-`Sidewheels::getInstance()->install();`
+register_activation_hook(__FILE__, function(){
+	Sidewheels::getInstance()->install();
+});
+```
 
 ### Add to your plugin deactivation hook:
+```php
+use Otomaties\Sidewheels\Sidewheels;
 
-`Sidewheels::getInstance()->uninstall();`
+register_deactivation_hook(__FILE__, function(){
+	Sidewheels::getInstance()-> uninstall();
+});
+```
 
 ### add config.php to your plugin root directory
+
+## Important notice
+
+After adding new routes, you need to manually flush your rewrite rules.
 
 ## Example configuration file
 
@@ -121,13 +141,14 @@ class Admin extends Controller
 
     public function index()
     {
+        $this->route()->setTitle('Dashboard'); // Optional
         $this->render('admin/dash.html', [
             'website' => 'https://tombroucke.be'
         ]);
     }
 
     public function create() {
-        // Create a post type of perform other action on POST
+        // Create a post or perform other action on POST
     }
 }
 
@@ -135,7 +156,7 @@ class Admin extends Controller
 
 ### View:
 
-This package uses twig as it's templating engine
+This package uses twig as it's templating engine. You can pass variable to your templates, e.g. 'website'. The route object is also passed as a variable, so you can use {{ route.title }} for example
 
 ``` html
 <!DOCTYPE html>
@@ -144,7 +165,7 @@ This package uses twig as it's templating engine
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Private page</title>
+	<title>{{ route.title }}</title>
 </head>
 <body>
 	<p>Check out this website: {{ website }}</p>
@@ -153,6 +174,8 @@ This package uses twig as it's templating engine
 ```
 
 ## Filters
+
+### Deny access to certain routes
 ```php
 use Namespace\Models\Order;
 add_filter('sidewheels_user_has_access', function ($access, $route) {
@@ -169,6 +192,10 @@ add_filter('sidewheels_user_has_access', function ($access, $route) {
 }, 10, 2);
 ```
 
+### Manipulate title, will override the title in config file
+
+Title can also be set from controller `$this->route()->setTitle('title');`, but this filter will override everything.
+
 ```php
 add_filter('sidewheels_route_title', function ($title, $route) {
     if ($route->path() == 'public-page') {
@@ -178,6 +205,7 @@ add_filter('sidewheels_route_title', function ($title, $route) {
 }, 10, 2);
 ```
 
+### Add custom functions to be used in your twig templates.
 ```php
 use \Twig\TwigFunction;
 
@@ -191,4 +219,12 @@ add_filter('sidewheels_twig_functions', function ($functions) {
     );
     return $functions;
 });
+```
+
+## Adding routes
+
+You can add routes outside of the config file:
+
+```php
+Route::get('public-page', 'Namespace\Controllers\Frontend@index');
 ```

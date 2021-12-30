@@ -48,6 +48,13 @@ class Route
     private $router;
 
     /**
+     * Route title
+     *
+     * @var string
+     */
+    private $title = '';
+
+    /**
      * Initialize route
      *
      * @param string $path
@@ -60,6 +67,9 @@ class Route
         $this->callback = $callback;
         $this->method = strtoupper($method);
         $this->router = Router::getInstance();
+
+        $pathArray = explode('/', $this->path());
+        $this->title = !empty($pathArray) ? ucfirst($pathArray[0]) : '';
         
         $this->registerRoute();
     }
@@ -71,7 +81,7 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function get(string $path, mixed $callback)
+    public static function get(string $path, mixed $callback) : Route
     {
         return new Route($path, $callback, 'GET');
     }
@@ -83,7 +93,7 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function post(string $path, mixed $callback)
+    public static function post(string $path, mixed $callback) : Route
     {
         return new Route($path, $callback, 'POST');
     }
@@ -95,7 +105,7 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function delete(string $path, mixed $callback)
+    public static function delete(string $path, mixed $callback) : Route
     {
         return new Route($path, $callback, 'DELETE');
     }
@@ -107,7 +117,7 @@ class Route
      * @param mixed $callback
      * @return Route
      */
-    public static function put(string $path, mixed $callback)
+    public static function put(string $path, mixed $callback) : Route
     {
         return new Route($path, $callback, 'PUT');
     }
@@ -137,7 +147,7 @@ class Route
      *
      * @return mixed
      */
-    public function callback() : mixed
+    public function callback()
     {
         return $this->callback;
     }
@@ -147,7 +157,7 @@ class Route
      *
      * @return mixed
      */
-    public function capability() : mixed
+    public function capability()
     {
         return $this->capability;
     }
@@ -158,7 +168,7 @@ class Route
      * @param string $param
      * @return string|false
      */
-    public function parameter(string $param) : mixed
+    public function parameter(string $param) : ?string
     {
         $params = $this->parameters();
         return isset($params[$param]) ? $params[$param] : false;
@@ -190,6 +200,27 @@ class Route
             $return[$key] = get_query_var($param);
         }
         return $return;
+    }
+
+    /**
+     * Set route title
+     *
+     * @param string $title
+     * @return void
+     */
+    public function setTitle(string $title) : void
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * Get route title
+     *
+     * @return void
+     */
+    public function title() : string
+    {
+        return apply_filters('sidewheels_route_title', $this->title, $this);
     }
 
     /**
@@ -243,7 +274,7 @@ class Route
      * @param string $capability
      * @return void
      */
-    public function require(string $capability)
+    public function require(string $capability) : void
     {
         $this->capability = $capability;
     }
@@ -256,6 +287,7 @@ class Route
     public function controller()
     {
         $callback = $this->callback();// eg. function(){echo "test"}
+        $controller = null;
         if (is_array($callback)) { // eg. ['Namespace\Controllers\Admin', 'index']
             @list($className, $method) = $callback;
             $controller = new $className();
@@ -264,6 +296,9 @@ class Route
             @list($className, $method) = explode('@', $callback);
             $controller = new $className();
             $callback = [$controller, $method];
+        }
+        if ($controller) {
+            $controller->setRoute($this);
         }
         return call_user_func_array($callback, array_values($this->parameters()));
     }
@@ -279,8 +314,6 @@ class Route
         if (!$guid) {
             $guid = home_url('/');
         }
-        $pathArray = explode('/', $this->path());
-        $title = !empty($pathArray) ? ucfirst($pathArray[0]) : '';
 
         $post                        = new \stdClass;
         $post->ID                    = -1;
@@ -288,7 +321,7 @@ class Route
         $post->post_date             = current_time('mysql');
         $post->post_date_gmt         = current_time('mysql', 1);
         $post->post_content          = '';
-        $post->post_title            = apply_filters('sidewheels_route_title', $title, $this);
+        $post->post_title            = $this->title();
         $post->post_excerpt          = '';
         $post->post_status           = 'publish';
         $post->comment_status        = 'closed';

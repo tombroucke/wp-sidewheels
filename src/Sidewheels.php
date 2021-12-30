@@ -124,6 +124,11 @@ class Sidewheels
         return $this->config;
     }
 
+    /**
+     * Change route title if its set
+     *
+     * @return void
+     */
     private function routeTitle()
     {
         add_filter('sidewheels_route_title', function ($title, $route) {

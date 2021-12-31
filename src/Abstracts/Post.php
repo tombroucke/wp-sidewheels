@@ -27,20 +27,20 @@ abstract class Post
      *
      * @return integer Post ID
      */
-    public function getId()
+    public function getId() : int
     {
         return $this->ID;
     }
 
-    public function validatePostType()
+    public function validatePostType() : void
     {
         if (get_post_type($this->getId()) != $this->postType()) {
-            // TODO: check if theres a better way to display an error message. 404?
+            // TODO: Implement a better way to display an error message. 404?
             die(sprintf('<code>%s is not a valid %s ID</code>', $this->getId(), $this->postType()));
         }
     }
 
-    abstract public static function postType();
+    abstract public static function postType() : string;
 
     /**
      * Get post meta
@@ -49,23 +49,29 @@ abstract class Post
      * @param  boolean $single Whether the result is a single record or an array of records.
      * @return mixed           The meta value for given key.
      */
-    public function get($key, $single = true)
+    public function get(string $key, bool $single = true)
     {
         return get_post_meta($this->getId(), $key, $single);
     }
 
     /**
-     * Get acf field
+     * Get ACF field
      *
      * @param  string $key The meta key.
      * @return mixed       The meta value for given key.
      */
-    public function getField($key)
+    public function getField(string $key)
     {
         return get_field($key, $this->getId());
     }
 
-    public function getDate($format = '')
+    /**
+     * Retrieve the date on which the post was written.
+     *
+     * @param string $format
+     * @return string|null
+     */
+    public function getDate(string $format = '') : ?string
     {
         return get_the_date($format, $this->getId());
     }
@@ -73,11 +79,11 @@ abstract class Post
     /**
      * Set post meta
      *
-     * @param integer $key   The meta key.
+     * @param string $key   The meta key.
      * @param string  $value The meta value.
-     * @return boolean       Whether the meta has been updated.
+     * @return boolean       True on success, false on failure.
      */
-    public function set($key, $value)
+    public function set(string $key, $value) : bool
     {
         return update_post_meta($this->getId(), $key, $value);
     }
@@ -85,11 +91,11 @@ abstract class Post
     /**
      * Add post meta
      *
-     * @param integer $key   The meta key.
-     * @param string  $value The meta value.
-     * @return boolean       Whether the meta has been added
+     * @param string $key   The meta key.
+     * @param mixed  $value The meta value.
+     * @return boolean       True on success, false on failure.
      */
-    public function addMeta($key, $value)
+    public function add(string $key, $value) : bool
     {
         return add_post_meta($this->getId(), $key, $value);
     }
@@ -99,9 +105,9 @@ abstract class Post
      *
      * @param integer     $key    The meta key.
      * @param string|null $value  The meta value.
-     * @return boolean            Whether the meta has been removed.
+     * @return boolean            True on success, false on failure.
      */
-    public function removeMeta($key, $value = null)
+    public function remove($key, $value = null) : bool
     {
         if ($value) {
             return delete_post_meta($this->getId(), $key, $value);
@@ -114,7 +120,7 @@ abstract class Post
      *
      * @return string The post title.
      */
-    public function title()
+    public function title() : string
     {
         return get_the_title($this->getId());
     }
@@ -124,7 +130,7 @@ abstract class Post
      *
      * @return string The post content.
      */
-    public function content()
+    public function content() : string
     {
         $post_object = get_post($this->getId());
         return $post_object->post_content;
@@ -135,7 +141,7 @@ abstract class Post
      *
      * @return string The post slug.
      */
-    public function name()
+    public function name() : string
     {
         $post_object = get_post($this->getId());
         return $post_object->post_name;
@@ -146,18 +152,18 @@ abstract class Post
      *
      * @return string The permalink.
      */
-    public function url()
+    public function url() : string
     {
         return get_the_permalink($this->getId());
     }
 
-    public function author()
+    public function author() : string
     {
         return get_post_field('post_author', $this->getId());
     }
 
 
-    public static function find($args = array(), $limit = -1, $paged = 0)
+    public static function find($args = array(), $limit = -1, $paged = 0) : array
     {
         $class = get_called_class();
         $defaults = array(
@@ -181,7 +187,6 @@ abstract class Post
 
     public static function insert($args)
     {
-
         $class = get_called_class();
         $defaults = array(
             'post_type' => static::postType(),

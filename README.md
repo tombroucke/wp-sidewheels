@@ -50,12 +50,12 @@ After adding new routes, you need to manually flush your rewrite rules.
 use Namespace\Models\Order;
 
 return [
-    'templatePath' => __DIR__ . '/views', // This is the default view directory, so no need to define templatePath
-    'textDomain' => 'plugin-textdomain', // This will be used to translate admin strings
+    'templatePath' => __DIR__ . '/views', // This is the default template directory, so this could be omitted
+    'textDomain' => 'plugin-textdomain', // Text domain for admin strings translation
     'routes' => [
         [
             'path' => 'public-page',
-            'callback' => ['Namespace\Controllers\Frontend', 'index'], // Or 'Namespace\Controllers\Frontend@index'
+            'callback' => ['Namespace\Controllers\Frontend', 'index'], // Or string: 'Namespace\Controllers\Frontend@index'
             'title' => __('Public page', 'plugin-textdomain'),
         ],
         [
@@ -138,7 +138,6 @@ use Otomaties\Sidewheels\Abstracts\Controller;
 
 class Admin extends Controller
 {
-
     public function index()
     {
         $this->route()->setTitle('Dashboard'); // Optional
@@ -147,8 +146,14 @@ class Admin extends Controller
         ]);
     }
 
-    public function create() {
+    public function create() 
+    {
         // Create a post or perform other action on POST
+    }
+    
+    public function shout(string $string)
+    {
+    	return strtoupper($string);
     }
 }
 
@@ -156,19 +161,18 @@ class Admin extends Controller
 
 ### View:
 
-This package uses twig as it's templating engine. You can pass variable to your templates, e.g. 'website'. The route object is also passed as a variable, so you can use {{ route.title }} for example
+This package uses twig as it's templating engine. You can pass variable to your templates, e.g. 'website'. The route object is also passed in as a variable, so you can use {{ route.title }} for example. You can call public methods from your controller.
 
 ``` html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{{ route.title }}</title>
 </head>
 <body>
+	<h1>{{ route.title }}</h1>
 	<p>Check out this website: {{ website }}</p>
+	<p>{{ shout('I\'m shouting'); }}</p>
 </body>
 </html>
 ```
@@ -227,4 +231,62 @@ You can add routes outside of the config file:
 
 ```php
 Route::get('public-page', 'Namespace\Controllers\Frontend@index');
+```
+
+## Abstracts
+
+There are 2 additional abstract classes which your models can extend: Post & User. These classes add generic functionality for posts and users.
+
+### User
+```php
+class Customer extends User 
+{
+    public static function role() : string
+    {
+        return 'customer';
+    }
+}
+
+$customer = new Customer(5); // Pass user id or WP_User object
+
+$customer = Customer::insert([
+    'user_pass' => '03071985',
+    'user_login' => 'marty',
+    'user_email' => 'marty@mcfly.com'
+]);
+
+$customer->getId();
+$customer->name();
+$customer->email();
+...
+
+```
+
+```php
+class Movie extends Post 
+{
+    public static function postType() : string
+    {
+        return 'movie';
+    }
+}
+
+$movie = new Movie(55); // Movie id
+
+$movie = Movie::find([
+	'meta_query' => [
+		[
+			'key' => 'director',
+			'value' => 'Robert Zemeckis'
+		]
+	]
+]);
+
+$movie->get('actors'); // get_post_meta(55, 'actors', true);
+$movie->add('actors', 'Michael J. Fox'); // add_post_meta(55, 'actors', true);
+$movie->set('rating', 5); // update_post_meta(55, 'rating', 5);
+$movie->getField('cover'); // get_field('cover', 55)
+$movie->title(); // get_the_title(55)
+...
+
 ```

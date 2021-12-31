@@ -22,7 +22,7 @@ abstract class Controller
      * @param array $params Optional parameters to be used in the template
      * @return void
      */
-    final public function render(string $template, ...$params) : void
+    final protected function render(string $template, ...$params) : void
     {
         do_action('sidewheel_before_template_full', $template, $params);
         $this->partial($template, $params);
@@ -37,7 +37,7 @@ abstract class Controller
      * @param array $params Optional parameters to be used in the template
      * @return void
      */
-    final public function renderShortcode(string $template, ...$params) : string
+    final protected function renderShortcode(string $template, ...$params) : string
     {
         ob_start();
         do_action('sidewheel_before_template_shortcode', $template, $params);
@@ -53,7 +53,7 @@ abstract class Controller
      * @param array $params Optional parameters to be used in the template
      * @return void
      */
-    final public function renderContent(string $template, ...$params) : void
+    final protected function renderContent(string $template, ...$params) : void
     {
         add_action('the_content', function () use ($template, $params) {
             if (is_main_query()) {
@@ -71,7 +71,7 @@ abstract class Controller
      * @param array $params Optional parameters to be used in the template
      * @return void
      */
-    final public function partial(string $template, array $params = []) : void
+    private function partial(string $template, array $params = []) : void
     {
         // Set parameters, append route parameter
         $params = empty($params) ? $params : $params[0];
@@ -84,6 +84,22 @@ abstract class Controller
         // Twig init
         $loader = new \Twig\Loader\FilesystemLoader($templatePath);
         $twig = new \Twig\Environment($loader);
+        
+        // Add wordpress functions & controller methods
+        foreach (apply_filters('sidewheels_twig_functions', $this->twigFunctions()) as $key => $function) {
+            $twig->addFunction($function);
+        }
+    
+        foreach (apply_filters('sidewheels_twig_filters', []) as $key => $filter) {
+            $twig->addFilter($filter);
+        }
+        
+        do_action('sidewheel_before_template', $template, $params);
+        echo $twig->render($template, $params);
+        do_action('sidewheel_after_template', $template, $params);
+    }
+
+    private function twigFunctions() {
 
         $functions = [];
         $functions[] = new TwigFunction(
@@ -204,18 +220,18 @@ abstract class Controller
                 return wp_footer();
             }
         );
-    
-        foreach (apply_filters('sidewheels_twig_functions', $functions) as $key => $function) {
-            $twig->addFunction($function);
+
+        $exposableMethods = array_diff(get_class_methods($this), get_class_methods('Otomaties\Sidewheels\Abstracts\Controller'));
+        foreach ($exposableMethods as $method) {
+            $functions[] = new TwigFunction(
+                $method,
+                function (...$args) use ($method) {
+                    return call_user_func([$this, $method], ...$args);
+                }
+            );
         }
-    
-        foreach (apply_filters('sidewheels_twig_filters', []) as $key => $filter) {
-            $twig->addFilter($filter);
-        }
-        
-        do_action('sidewheel_before_template', $template, $params);
-        echo $twig->render($template, $params);
-        do_action('sidewheel_after_template', $template, $params);
+
+        return $functions;
     }
 
     /**

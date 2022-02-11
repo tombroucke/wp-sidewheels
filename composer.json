@@ -9,6 +9,6 @@
     },
     "require": {
         "twig/twig": "^3.0",
-        "johnbillion/extended-cpts": "^4.4"
+        "johnbillion/extended-cpts": "^5.0"
     }
 }

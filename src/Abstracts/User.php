@@ -68,7 +68,7 @@ abstract class User
     {
         $class = get_called_class();
         $args = [
-        'role' => static::role(),
+            'role' => static::role(),
         ];
         return array_map(function ($user) use ($class) {
             return new $class($user);
@@ -79,14 +79,18 @@ abstract class User
     {
         $class = get_called_class();
         $defaults = array(
-        'user_login' => null,
-        'user_pass' => null,
-        'role' => static::role(),
+            'user_login' => null,
+            'user_pass' => null,
+            'role' => static::role(),
         );
 
         $args = wp_parse_args($args, $defaults);
-        $post_id = wp_insert_user($args);
+        $userId = wp_insert_user($args);
 
-        return new $class($post_id);
+        if (is_wp_error($userId)) {
+            return $userId;
+        }
+        
+        return new $class($userId);
     }
 }

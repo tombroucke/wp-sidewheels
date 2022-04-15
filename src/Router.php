@@ -77,7 +77,15 @@ class Router
     public function currentSidewheelsRoute() : ?Route
     {
         $route = $this->match(get_query_var('sidewheels_route'), $_SERVER['REQUEST_METHOD']);
-        if (!$route || !$route->hasAccess(get_current_user_id())) {
+        if (!$route) {
+            return null;
+        }
+        if (!$route->hasAccess(get_current_user_id())) {
+            if (is_user_logged_in()) {
+                sidewheelsTrigger404();
+            } else {
+                auth_redirect();
+            }
             return null;
         }
         return $route;
@@ -161,7 +169,7 @@ class Router
      *
      * @return Router
      */
-    public static function getInstance()
+    public static function instance()
     {
         if (self::$instance == null) {
             self::$instance = new Router();

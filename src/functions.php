@@ -45,3 +45,21 @@ if (! function_exists('sidewheelsCurrentUrl')) {
         return $protocol . '://' . $host . $request_uri;
     }
 }
+
+if (! function_exists('sidewheelsTrigger404')) {
+    /**
+     * Get the current url
+     *
+     * @return string
+     */
+    function sidewheelsTrigger404() : void
+    {
+        add_action('template_include', function(){
+            global $wp, $wp_query;
+            $wp_query->set_404();
+            status_header( 404 );
+            $template = locate_template( '404.php' );
+            return $template;
+        });
+    }
+}

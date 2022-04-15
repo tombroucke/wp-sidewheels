@@ -41,6 +41,7 @@ class Sidewheels
         $this->initRoutes();
         $this->initPostTypes();
         $this->initTaxonomies();
+        $this->initAdmin();
         $this->routeTitle();
     }
 
@@ -114,6 +115,12 @@ class Sidewheels
         }
     }
 
+    private function initAdmin()
+    {
+        $admin = new Admin($this->config);
+        add_action('add_meta_boxes', [$admin, 'addMetaBoxes']);
+    }
+
     /**
      * Get app configuration
      *
@@ -164,23 +171,27 @@ class Sidewheels
         }
     }
 
+    public static function init() : Sidewheels
+    {
+        return self::instance();
+    }
+
     /**
      * Create routes, add roles & flush rewrite rules on installation
      */
-    public function install()
+    public static function install() : void
     {
-
-        $this->initPostTypes();
-        $this->initRoles();
+        $sidewheels = self::instance();
+        $sidewheels->initPostTypes();
+        $sidewheels->initRoles();
         flush_rewrite_rules();
     }
 
     /**
      * Remove roles on uninstall
      */
-    public function uninstall()
+    public static function uninstall() : void
     {
-
         flush_rewrite_rules();
     }
 
@@ -189,7 +200,7 @@ class Sidewheels
      *
      * @return Sidewheels
      */
-    public static function getInstance() : Sidewheels
+    public static function instance() : Sidewheels
     {
         if (self::$instance == null) {
             self::$instance = new Sidewheels();

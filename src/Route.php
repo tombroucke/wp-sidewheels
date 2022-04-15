@@ -66,7 +66,7 @@ class Route
         $this->path = $path;
         $this->callback = $callback;
         $this->method = strtoupper($method);
-        $this->router = Router::getInstance();
+        $this->router = Router::instance();
 
         $pathArray = explode('/', $this->path());
         $this->title = !empty($pathArray) ? ucfirst($pathArray[0]) : '';

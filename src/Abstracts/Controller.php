@@ -78,7 +78,7 @@ abstract class Controller
         $params['route'] = $this->route();
 
         // Sidewheels config
-        $sidewheels = Sidewheels::getInstance();
+        $sidewheels = Sidewheels::instance();
         $templatePath = $sidewheels->config()->templatePath();
 
         // Twig init
@@ -218,6 +218,13 @@ abstract class Controller
             'wp_footer',
             function () {
                 return wp_footer();
+            }
+        );
+
+        $functions[] = new TwigFunction(
+            'selected',
+            function ($selected, $current = true, $echo = true) {
+                return selected($selected, $current, $echo);
             }
         );
 

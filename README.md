@@ -14,7 +14,7 @@ This package provides an easy way to create custom routes (MVC), roles, Custom p
 use Otomaties\Sidewheels\Sidewheels;
 
 add_action('init', function(){
-	Sidewheels::getInstance();
+	Sidewheels::init();
 });
 ```
 
@@ -23,7 +23,7 @@ add_action('init', function(){
 use Otomaties\Sidewheels\Sidewheels;
 
 register_activation_hook(__FILE__, function(){
-	Sidewheels::getInstance()->install();
+	Sidewheels::install();
 });
 ```
 
@@ -32,7 +32,7 @@ register_activation_hook(__FILE__, function(){
 use Otomaties\Sidewheels\Sidewheels;
 
 register_deactivation_hook(__FILE__, function(){
-	Sidewheels::getInstance()-> uninstall();
+	Sidewheels::uninstall();
 });
 ```
 

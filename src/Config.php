@@ -101,7 +101,7 @@ class Config
      */
     public function taxonomies() : array
     {
-        return $this->config['taxonomiess'];
+        return $this->config['taxonomies'];
     }
 
     /**

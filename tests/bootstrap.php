@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 WP_Mock::bootstrap();
 
-global $rules;
+global $rewrite_rules;
 global $query_vars;
 $query_vars = [
     'sidewheels_order_id' => 69,
@@ -16,8 +16,8 @@ $is_user_logged_in = true;
 
 function add_rewrite_rule(string $regex, string|array $query, string $after = 'bottom')
 {
-    global $rules;
-    $rules[] = [$regex, $query, $after];
+    global $rewrite_rules;
+    $rewrite_rules[] = [$regex, $query, $after];
 }
 
 function user_can($user, $capability, ...$args)

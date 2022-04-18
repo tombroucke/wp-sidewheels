@@ -252,11 +252,11 @@ class Route
      */
     private function addQueryVar(string $var) : void
     {
-        add_filter('query_vars', function ($query_vars) use ($var) {
-            if (!in_array($var, $query_vars)) {
-                $query_vars[] = $var;
+        add_filter('query_vars', function ($queryVars) use ($var) {
+            if (!in_array($var, $queryVars)) {
+                $queryVars[] = $var;
             }
-            return $query_vars;
+            return $queryVars;
         });
     }
     
@@ -299,7 +299,7 @@ class Route
      * Post object for custom route
      *
      * @param string $guid
-     * @return void
+     * @return stdClass
      */
     public function pageObject(string $guid = null) : \stdClass
     {

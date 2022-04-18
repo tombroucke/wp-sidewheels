@@ -18,7 +18,6 @@ function get_post_meta($id, $key, $single)
 
 function get_posts($args)
 {
-    print_R($args);
     PostTest::$functions->get_posts($args);
     return [99,100];
 }

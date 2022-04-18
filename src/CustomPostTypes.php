@@ -53,7 +53,7 @@ class CustomPostTypes
 
         unset($args['labels']);
 
-        $default_args = array(
+        $defaultArgs = array(
             'labels'             => $labels,
             'public'             => true,
             'publicly_queryable' => true,
@@ -69,7 +69,7 @@ class CustomPostTypes
             'menu_position'      => null,
             'supports'           => ['title', 'author', 'thumbnail'],
         );
-        $args = wp_parse_args($args, $default_args);
+        $args = wp_parse_args($args, $defaultArgs);
 
         register_extended_post_type($postType, $args);
     }

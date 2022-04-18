@@ -29,20 +29,18 @@ final class RouteTest extends TestCase
     
     public function testIfRewriteRulesAreAdded()
     {
-        global $rules;
-        $route = new Route('orders', 'callback', 'GET');
-        $this->assertContains(['^orders?$', 'index.php?sidewheels_route=orders', 'top'], $rules);
+        global $rewrite_rules;
+        new Route('orders', 'callback', 'GET');
+        $this->assertContains(['^orders?$', 'index.php?sidewheels_route=orders', 'top'], $rewrite_rules);
 
         \WP_Mock::expectFilterAdded('query_vars', function () {
         }, 10, 1);
         new Route('orders/{order_id}', 'callback', 'GET');
-        $this->assertContains(['^orders/([0-9]+)?$', 'index.php?sidewheels_route=orders/{order_id}&sidewheels_order_id=$matches[1]', 'top'], $rules);
+        $this->assertContains(['^orders/([0-9]+)?$', 'index.php?sidewheels_route=orders/{order_id}&sidewheels_order_id=$matches[1]', 'top'], $rewrite_rules);
 
     }
 
     public function testIfPathIsCorrect() {
-        global $rules;
-        $rules = [];
         $route = new Route('orders', 'callback', 'GET');
         $this->assertEquals('orders', $route->path());
 
@@ -52,8 +50,6 @@ final class RouteTest extends TestCase
     
     public function testIfRouteIsProtected()
     {
-        global $rules;
-        $rules = [];
         $route = new Route('orders', 'callback', 'GET');
         $this->assertTrue($route->hasAccess(0));
         $this->assertNull($route->capability());
@@ -66,8 +62,6 @@ final class RouteTest extends TestCase
 
     public function testIfGetRouteCanBeAdded()
     {
-        global $rules;
-        $rules = [];
         $route = Route::get('orders', 'customCallback');
         $this->assertInstanceOf(Route::class, $route);
         $this->assertEquals($route->method(), 'GET');
@@ -75,8 +69,6 @@ final class RouteTest extends TestCase
 
     public function testIfPostRouteCanBeAdded()
     {
-        global $rules;
-        $rules = [];
         $route = Route::post('orders', 'customCallback');
         $this->assertInstanceOf(Route::class, $route);
         $this->assertEquals($route->method(), 'POST');
@@ -84,8 +76,6 @@ final class RouteTest extends TestCase
 
     public function testIfDeleteRouteCanBeAdded()
     {
-        global $rules;
-        $rules = [];
         $route = Route::delete('orders/{order_id}', 'customCallback');
         $this->assertInstanceOf(Route::class, $route);
         $this->assertEquals($route->method(), 'DELETE');
@@ -93,8 +83,6 @@ final class RouteTest extends TestCase
 
     public function testIfPutRouteCanBeAdded()
     {
-        global $rules;
-        $rules = [];
         $route = Route::put('orders/{order_id}', 'customCallback');
         $this->assertInstanceOf(Route::class, $route);
         $this->assertEquals($route->method(), 'PUT');
@@ -102,8 +90,6 @@ final class RouteTest extends TestCase
 
     public function testIfRouteHasParameters()
     {
-        global $rules;
-        $rules = [];
         $route = Route::get('orders/{order_id}', 'customCallback');
         $this->assertArrayHasKey('order_id', $route->parameters());
         $this->assertEquals(69, $route->parameters()['order_id']);
@@ -111,8 +97,6 @@ final class RouteTest extends TestCase
 
     public function testIfRouteParameterIsCorrect()
     {
-        global $rules;
-        $rules = [];
         $route = Route::get('orders/{order_id}/products/{product_id}', 'customCallback');
         $this->assertEquals(69, $route->parameter('order_id'));
         $this->assertEquals(3, $route->parameter('product_id'));
@@ -121,8 +105,6 @@ final class RouteTest extends TestCase
 
     public function testIfControllerIsCalled()
     {
-        global $rules;
-        $rules = [];
         $route = Route::get('orders/{order_id}', 'testCallback');
         $this->assertEquals($route->controller(), 'callback_has_been_called');
 
@@ -135,8 +117,6 @@ final class RouteTest extends TestCase
 
     public function testIfTitleCanBeSet()
     {
-        global $rules;
-        $rules = [];
 
         $route = Route::get('orders/{order_id}', 'testCallback');
         $this->assertEquals('Test Title', $route->setTitle('Test Title')->title());
@@ -149,8 +129,6 @@ final class RouteTest extends TestCase
 
     public function testPageObjectIsCorrect()
     {
-        global $rules;
-        $rules = [];
         $route = Route::get('orders/{order_id}', 'testCallback');
         $this->assertInstanceOf(stdClass::class, $route->pageObject());
         $this->assertEquals('orders/{order_id}', $route->pageObject()->post_name);

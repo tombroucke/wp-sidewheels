@@ -39,11 +39,11 @@ class Router
      */
     private function init()
     {
-        add_filter('query_vars', function ($query_vars) {
-            if (!in_array('sidewheels_route', $query_vars)) {
-                $query_vars[] = 'sidewheels_route';
+        add_filter('query_vars', function ($queryVars) {
+            if (!in_array('sidewheels_route', $queryVars)) {
+                $queryVars[] = 'sidewheels_route';
             }
-            return $query_vars;
+            return $queryVars;
         });
     }
 
@@ -76,7 +76,7 @@ class Router
      */
     public function currentSidewheelsRoute() : ?Route
     {
-        $route = $this->match(get_query_var('sidewheels_route'), $_SERVER['REQUEST_METHOD']);
+        $route = $this->matchingRoute(get_query_var('sidewheels_route'), $_SERVER['REQUEST_METHOD']);
         if (!$route) {
             return null;
         }
@@ -86,7 +86,7 @@ class Router
             } else {
                 auth_redirect();
             }
-            return 'sqdf qsd' . null;
+            return null;
         }
         return $route;
     }
@@ -152,9 +152,9 @@ class Router
      *
      * @param String $path
      * @param String $method
-     * @return Route|false
+     * @return Route
      */
-    public function match(String $path, String $method) : ?Route
+    public function matchingRoute(string $path, string $method) : ?Route
     {
         foreach ($this->routes as $route) {
             if ($route->method() == $method && $route->path() == $path) {

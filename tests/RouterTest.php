@@ -7,8 +7,12 @@ use PHPUnit\Framework\TestCase;
 
 final class RouterTest extends TestCase
 {
+
+    private $router;
+
     public function setUp(): void
     {
+        $this->router = Router::instance();
         parent::setUp();
         WP_Mock::setUp();
     }
@@ -27,8 +31,7 @@ final class RouterTest extends TestCase
         }, 10, 1);
         \WP_Mock::expectActionAdded('template_include', function () {
         }, 10, 1);
-        $router = Router::instance();
-        $reflection = new ReflectionClass($router);
+        $reflection = new ReflectionClass($this->router);
         $instance = $reflection->getProperty('instance');
         $instance->setAccessible(true); // now we can modify that :)
         $instance->setValue(null, null); // instance is gone
@@ -41,19 +44,17 @@ final class RouterTest extends TestCase
 
     public function testIfRouteCanBeFound() {
         // Order is important. No routes have been added at this point
-        $router = Router::instance();
-        $this->assertNull($router->match('orders', 'GET'));
+        $this->assertNull($this->router->matchingRoute('orders', 'GET'));
         $route = new Route('orders', 'callback', 'GET');
         Router::instance()->register($route);
-        $this->assertEquals($router->match('orders', 'GET'), $route);
+        $this->assertEquals($this->router->matchingRoute('orders', 'GET'), $route);
     }
 
     public function testCurrentSidewheelsRoute() {
-        $router = Router::instance();
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->assertInstanceOf(Route::class, $router->currentSidewheelsRoute());
+        $this->assertInstanceOf(Route::class, $this->router->currentSidewheelsRoute());
 
         $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $this->assertNull($router->currentSidewheelsRoute());
+        $this->assertNull($this->router->currentSidewheelsRoute());
     }
 }

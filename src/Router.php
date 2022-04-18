@@ -86,7 +86,7 @@ class Router
             } else {
                 auth_redirect();
             }
-            return null;
+            return 'sqdf qsd' . null;
         }
         return $route;
     }
@@ -142,7 +142,7 @@ class Router
      * @param Route $route
      * @return void
      */
-    public function registerRoute(Route $route) : void
+    public function register(Route $route) : void
     {
         $this->routes[] = $route;
     }

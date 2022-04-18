@@ -1,19 +1,5 @@
 <?php
 
-if (!function_exists('sidewheelsRoute')) {
-    /**
-     * Get full url for route
-     *
-     * @param string $path
-     * @param array $replacements
-     * @return string
-     */
-    function sidewheelsRoute(string $path, array $replacements = []) : string
-    {
-        return home_url('/') . sidewheelsReplaceRouteParameters($path, $replacements);
-    }
-}
-
 if (!function_exists('sidewheelsReplaceRouteParameters')) {
     /**
      * Replace routeparameters in a string
@@ -28,6 +14,20 @@ if (!function_exists('sidewheelsReplaceRouteParameters')) {
             $string = str_replace("{{$key}}", $value, $string);
         }
         return $string;
+    }
+}
+
+if (!function_exists('sidewheelsRoute')) {
+    /**
+     * Get full url for route
+     *
+     * @param string $path
+     * @param array $replacements
+     * @return string
+     */
+    function sidewheelsRoute(string $path, array $replacements = []) : string
+    {
+        return home_url('/') . sidewheelsReplaceRouteParameters($path, $replacements);
     }
 }
 

@@ -22,9 +22,9 @@ class Route
     /**
      * Optional capability to protect this route
      *
-     * @var string|false
+     * @var string|null
      */
-    private $capability = false;
+    private $capability = null;
 
     /**
      * GET, POST, PUT or DELETE
@@ -39,13 +39,6 @@ class Route
      * @var array
      */
     private $params = [];
-
-    /**
-     * Router instance
-     *
-     * @var Router
-     */
-    private $router;
 
     /**
      * Route title
@@ -66,7 +59,6 @@ class Route
         $this->path = $path;
         $this->callback = $callback;
         $this->method = strtoupper($method);
-        $this->router = Router::instance();
 
         $pathArray = explode('/', $this->path());
         $this->title = !empty($pathArray) ? ucfirst($pathArray[0]) : '';
@@ -166,12 +158,12 @@ class Route
      * Get value of route parameter
      *
      * @param string $param
-     * @return string|false
+     * @return string|null
      */
     public function parameter(string $param) : ?string
     {
         $params = $this->parameters();
-        return isset($params[$param]) ? $params[$param] : false;
+        return isset($params[$param]) ? $params[$param] : null;
     }
 
     /**
@@ -206,11 +198,12 @@ class Route
      * Set route title
      *
      * @param string $title
-     * @return void
+     * @return Route
      */
-    public function setTitle(string $title) : void
+    public function setTitle(string $title) : Route
     {
         $this->title = $title;
+        return $this;
     }
 
     /**
@@ -237,7 +230,7 @@ class Route
             $pattern = '/{(.*?)}/';
             if (preg_match($pattern, $pathPart, $matches)) {
                 $name = $matches[1];
-                $pathPart = '([0-9]+)';
+                $pathPart = '([0-9]+)'; // TODO: also allow strings, not just post ids
                 $queryVarName = "sidewheels_{$name}";
                 $matchesIndex = substr_count($redirect, '$matches');
 
@@ -249,7 +242,6 @@ class Route
         
         $regex = sprintf('^%s?$', implode('/', $pathParts));
         add_rewrite_rule($regex, $redirect, 'top');
-        $this->router->registerRoute($this);
     }
 
     /**

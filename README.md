@@ -10,11 +10,13 @@ This package provides an easy way to create custom routes (MVC), roles, Custom p
 
 ### Initialize sidewheels your plugin:
 
+`dirname(__FILE__)` is where your config.php file resides.
+
 ```php
 use Otomaties\Sidewheels\Sidewheels;
 
 add_action('init', function(){
-	Sidewheels::init();
+	Sidewheels::init(dirname(__FILE__));
 });
 ```
 

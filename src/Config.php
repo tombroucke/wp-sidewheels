@@ -37,7 +37,7 @@ class Config
      *
      * @return array
      */
-    public function fetchConfig() : array
+    private function fetchConfig() : array
     {
         if (!file_exists($this->configPath)) {
             throw new \Exception('Config file not found', 1);

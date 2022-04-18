@@ -31,10 +31,13 @@ class Sidewheels
     /**
      * Initialize sidewheels
      */
-    public function __construct()
+    public function __construct(string $rootPath = null)
     {
-        $reflection = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
-        $this->rootPath = dirname($reflection->getFileName(), 3);
+        if(!$rootPath) {
+            $ReflectionClass = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
+            $this->rootPath = dirname($ReflectionClass->getFileName(), 3);
+        }
+        $this->rootPath = $rootPath;
 
         $this->config = new Config($this->rootPath);
 
@@ -75,6 +78,8 @@ class Sidewheels
                         break;
                 }
 
+                Router::instance()->register($route);
+
                 if ($capability) {
                     $route->require($capability);
                 }
@@ -88,7 +93,7 @@ class Sidewheels
      *
      * @return void
      */
-    public function initPostTypes() : void
+    private function initPostTypes() : void
     {
         $postTypes = $this->config()->postTypes();
         if (!empty($postTypes)) {
@@ -171,9 +176,9 @@ class Sidewheels
         }
     }
 
-    public static function init() : Sidewheels
+    public static function init(string $rootPath = null) : Sidewheels
     {
-        return self::instance();
+        return self::instance($rootPath);
     }
 
     /**
@@ -200,10 +205,10 @@ class Sidewheels
      *
      * @return Sidewheels
      */
-    public static function instance() : Sidewheels
+    public static function instance(string $rootPath = null) : Sidewheels
     {
         if (self::$instance == null) {
-            self::$instance = new Sidewheels();
+            self::$instance = new Sidewheels($rootPath);
         }
    
         return self::$instance;

@@ -33,7 +33,7 @@ class Sidewheels
      */
     public function __construct(string $rootPath = null)
     {
-        if(!$rootPath) {
+        if (!$rootPath) {
             $ReflectionClass = new \ReflectionClass(\Composer\Autoload\ClassLoader::class);
             $this->rootPath = dirname($ReflectionClass->getFileName(), 3);
         }

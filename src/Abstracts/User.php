@@ -64,15 +64,25 @@ abstract class User
         return delete_user_meta($this->getId(), $key, $value);
     }
 
-    public static function find() : array
+    public static function find($args = []) : array
     {
         $class = get_called_class();
-        $args = [
+        $defaults = [
             'role' => static::role(),
         ];
+        $args = wp_parse_args($args, $defaults);
         return array_map(function ($user) use ($class) {
             return new $class($user);
         }, get_users($args));
+    }
+
+    public static function findById(string $id) : ?User
+    {
+        $foundUsers = self::find(['include' => [$id]]);
+        if (!empty($foundUsers)) {
+            return $foundUsers[0];
+        }
+        return null;
     }
 
     public static function insert($args)

@@ -115,7 +115,13 @@ class Sidewheels
         if (!empty($taxonomies)) {
             $customTaxonomies = new CustomTaxonomies($this->config);
             foreach ($taxonomies as $name => $taxonomy) {
-                $customTaxonomies->add($name, $taxonomy['singular_label'], $taxonomy['plural_label'], $taxonomy['post_type'], $taxonomy['options']);
+                $customTaxonomies->add(
+                    $name,
+                    $taxonomy['singular_label'],
+                    $taxonomy['plural_label'],
+                    $taxonomy['post_type'],
+                    $taxonomy['options']
+                );
             }
         }
     }

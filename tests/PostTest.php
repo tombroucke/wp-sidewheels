@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-use Otomaties\Sidewheels\Abstracts\Post as AbstractsPost;
 use PHPUnit\Framework\TestCase;
+use Otomaties\WpModels\PostType;
+use Otomaties\Sidewheels\Abstracts\Post as AbstractsPost;
 
 function get_post_type()
 {
@@ -28,7 +29,7 @@ function wp_insert_post($args)
     return 42;
 }
 
-class Order extends AbstractsPost
+class Order extends PostType
 {
     public static function postType() : string
     {
@@ -68,8 +69,8 @@ final class PostTest extends TestCase
 
     public function testGetMeta()
     {
-        $this->assertEquals($this->order->get('meta_key'), 'meta_value');
-        $this->assertFalse($this->order->get('unexisting_meta_key'));
+        $this->assertEquals($this->order->meta()->get('meta_key'), 'meta_value');
+        $this->assertFalse($this->order->meta()->get('unexisting_meta_key'));
     }
 
     public function testFindOrders()
@@ -96,7 +97,7 @@ final class PostTest extends TestCase
         ];
         $orders = Order::find($args);
         $this->assertCount(2, $orders);
-        $this->assertInstanceOf(Order::class, $orders[0]);
+        $this->assertInstanceOf(Order::class, $orders->first());
     }
 
     public function testInsertOrder()

@@ -278,13 +278,13 @@ class Route
      */
     public function controller()
     {
-        $callback = $this->callback();// eg. function(){echo "test"}
+        $callback = $this->callback();
         $controller = null;
-        if (is_array($callback)) { // eg. ['Namespace\Controllers\Admin', 'index']
+        if (is_array($callback)) {
             @list($className, $method) = $callback;
             $controller = new $className();
             $callback = [$controller, $method];
-        } elseif (is_string($callback) && strpos($callback, '@') !== false) { // eg. ['Namespace\Controllers\Admin@index']
+        } elseif (is_string($callback) && strpos($callback, '@') !== false) {
             @list($className, $method) = explode('@', $callback);
             $controller = new $className();
             $callback = [$controller, $method];

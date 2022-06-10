@@ -99,7 +99,8 @@ abstract class Controller
         do_action('sidewheel_after_template', $template, $params);
     }
 
-    private function twigFunctions() {
+    private function twigFunctions()
+    {
 
         $functions = [];
         $functions[] = new TwigFunction(
@@ -228,7 +229,10 @@ abstract class Controller
             }
         );
 
-        $exposableMethods = array_diff(get_class_methods($this), get_class_methods('Otomaties\Sidewheels\Abstracts\Controller'));
+        $exposableMethods = array_diff(
+            get_class_methods($this),
+            get_class_methods('Otomaties\Sidewheels\Abstracts\Controller')
+        );
         foreach ($exposableMethods as $method) {
             $functions[] = new TwigFunction(
                 $method,

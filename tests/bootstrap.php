@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../../vendor/autoload.php';
-
 WP_Mock::bootstrap();
 
 global $rewrite_rules;
@@ -69,6 +67,11 @@ function wp_timezone()
 function get_current_user_id()
 {
     return 1;
+}
+
+function is_wp_error($thing) 
+{
+    return false;
 }
 
 function wp_parse_args( $args, $defaults = array() ) {

@@ -4,7 +4,7 @@ namespace Otomaties\Sidewheels;
 
 class CustomTaxonomies
 {
-    
+
     /**
      * Configuration object
      *
@@ -31,8 +31,13 @@ class CustomTaxonomies
      * @param string $postType     The post type for this new taxonomy.
      * @param array  $options       Custom options.
      */
-    public function add(string $name, string $singularName, string $pluralName, string $postType, array $defaultArgs = [])
-    {
+    public function add(
+        string $name,
+        string $singularName,
+        string $pluralName,
+        string $postType,
+        array $defaultArgs = []
+    ) {
         $labels = array(
             'name'              => ucfirst($pluralName),
             'singular_name'     => ucfirst($singularName),

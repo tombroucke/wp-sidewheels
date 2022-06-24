@@ -309,6 +309,7 @@ class Route
 
         $post                        = new \stdClass;
         $post->ID                    = -1;
+        $post->ancestors             = [];
         $post->post_author           = 1;
         $post->post_date             = current_time('mysql');
         $post->post_date_gmt         = current_time('mysql', 1);

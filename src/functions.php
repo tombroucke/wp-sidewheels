@@ -27,7 +27,7 @@ if (!function_exists('sidewheelsRoute')) {
      */
     function sidewheelsRoute(string $path, array $replacements = []) : string
     {
-        return home_url('/') . sidewheelsReplaceRouteParameters($path, $replacements);
+        return home_url('/') . sidewheelsReplaceRouteParameters($path, $replacements) . '/';
     }
 }
 

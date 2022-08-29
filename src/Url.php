@@ -32,6 +32,15 @@ class Url {
 		$this->replacements = $replacements;
 	}
 
+	private function rightTrim($str, $needle, $caseSensitive = true)
+	{
+		$strPosFunction = $caseSensitive ? "strpos" : "stripos";
+		if ($strPosFunction($str, $needle, strlen($str) - strlen($needle)) !== false) {
+			$str = substr($str, 0, -strlen($needle));
+		}
+		return $str;
+	}
+
 	/**
 	 * Create url
 	 *
@@ -39,7 +48,17 @@ class Url {
 	 */
 	public function __toString() {
 		$endpoints = $this->settings->get( 'endpoints' );
-		$url = rtrim( home_url(), '/' ) . '/';
+		$url = $this->rightTrim( home_url(), '/' ) . '/';
+
+		$currentLanguage = apply_filters( 'wpml_current_language', null );
+		$defaultLanguage = apply_filters( 'wpml_default_language', null );
+		
+		if ( $currentLanguage && $defaultLanguage && $currentLanguage !== $defaultLanguage ) {
+			$langAppend = $currentLanguage . '/';
+			$url = $this->rightTrim($url, $langAppend );
+			$url .= $langAppend;
+		}
+
 		if ( ! isset( $endpoints[ $this->path[0] ] ) ) {
 			return $url;
 		}

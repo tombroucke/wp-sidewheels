@@ -26,17 +26,17 @@ class CustomTaxonomies
      * Add custom taxonomy
      *
      * @param string $name          Taxonomy name.
-     * @param string $singularName Singular name.
-     * @param string $pluralName   Plural name.
-     * @param string $postType     The post type for this new taxonomy.
-     * @param array  $options       Custom options.
+     * @param string $singularName  Singular name.
+     * @param string $pluralName    Plural name.
+     * @param string $postType      The post type for this new taxonomy.
+     * @param array  $args   Custom options.
      */
     public function add(
         string $name,
         string $singularName,
         string $pluralName,
         string $postType,
-        array $defaultArgs = []
+        array $args = []
     ) {
         $labels = array(
             'name'              => ucfirst($pluralName),
@@ -52,7 +52,7 @@ class CustomTaxonomies
             'menu_name'         => ucfirst($pluralName),
         );
 
-        $args = array(
+        $defaultArgs = array(
             'hierarchical'      => true,
             'labels'            => $labels,
             'show_ui'           => true,

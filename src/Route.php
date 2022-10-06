@@ -29,7 +29,7 @@ class Route
     /**
      * GET, POST, PUT or DELETE
      *
-     * @var [type]
+     * @var string
      */
     private $method;
 
@@ -61,7 +61,7 @@ class Route
         $this->method = strtoupper($method);
 
         $pathArray = explode('/', $this->path());
-        $this->title = !empty($pathArray) ? ucfirst($pathArray[0]) : '';
+        $this->title = isset($pathArray[0]) ? ucfirst($pathArray[0]) : '';
         
         $this->registerRoute();
     }
@@ -209,7 +209,7 @@ class Route
     /**
      * Get route title
      *
-     * @return void
+     * @return string
      */
     public function title() : string
     {
@@ -274,9 +274,9 @@ class Route
     /**
      * Call controller method
      *
-     * @return void
+     * @return mixed
      */
-    public function controller()
+    public function controller() : mixed
     {
         $callback = $this->callback();
         $controller = null;
@@ -299,7 +299,7 @@ class Route
      * Post object for custom route
      *
      * @param string $guid
-     * @return stdClass
+     * @return \stdClass
      */
     public function pageObject(string $guid = null) : \stdClass
     {

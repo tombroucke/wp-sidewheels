@@ -1,0 +1,11 @@
+#$ vendor/bin/phpstan analyze
+
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+    level: max
+    inferPrivatePropertyTypeFromConstructor: true
+    paths:
+        - inc/
+
+# See full example in phpstan-full.neon

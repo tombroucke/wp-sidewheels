@@ -6,7 +6,7 @@ if (!function_exists('sidewheelsReplaceRouteParameters')) {
      *
      * @param string $string
      * @param array $parameters
-     * @return void
+     * @return string
      */
     function sidewheelsReplaceRouteParameters(string $string, array $parameters) : string
     {
@@ -50,7 +50,7 @@ if (! function_exists('sidewheelsTrigger404')) {
     /**
      * Get the current url
      *
-     * @return string
+     * @return void
      */
     function sidewheelsTrigger404() : void
     {

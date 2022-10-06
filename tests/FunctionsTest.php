@@ -30,20 +30,23 @@ final class FunctionsTest extends TestCase
         $this->assertEquals(sidewheelsReplaceRouteParameters($route, $replacements), 'orders/69/product/420');
     }
 
-	public function testIfSidewheelsRouteIsCorrect() {
+    public function testIfSidewheelsRouteIsCorrect()
+    {
         $route = 'orders/{order_id}/product/{product_id}';
         $replacements = [
             'order_id' => 69,
             'product_id' => 420
         ];
-        $this->assertEquals(sidewheelsRoute($route, $replacements), 'https://example.com/orders/69/product/420');
-	}
+        $this->assertEquals(sidewheelsRoute($route, $replacements), 'https://example.com/orders/69/product/420/');
+    }
 
-	public function testIfTemplateIncludeActionIsAdded() {
-        \WP_Mock::expectActionAdded('template_include', function () {}, 10, 1);
-		sidewheelsTrigger404();
+    public function testIfTemplateIncludeActionIsAdded()
+    {
+        \WP_Mock::expectActionAdded('template_include', function () {
+        }, 10, 1);
+        sidewheelsTrigger404();
 
-		// The test is to see if a action is added
-		$this->assertTrue(true);
-	}
+        // The test is to see if a action is added
+        $this->assertTrue(true);
+    }
 }

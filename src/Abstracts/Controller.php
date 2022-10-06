@@ -35,7 +35,7 @@ abstract class Controller
      *
      * @param string $template The template path
      * @param array $params Optional parameters to be used in the template
-     * @return void
+     * @return string
      */
     final protected function renderShortcode(string $template, ...$params) : string
     {

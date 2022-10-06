@@ -20,6 +20,13 @@ class Config
     private $configPath = '';
 
     /**
+     * Configuration settings
+     *
+     * @var array
+     */
+    private $config = [];
+
+    /**
      * Initialize config
      *
      * @param string $rootPath
@@ -119,7 +126,7 @@ class Config
      *
      * @param string $key
      * @param string $value
-     * @return array\null
+     * @return array|null
      */
     public function findRouteBy($key, $value) : ?array
     {

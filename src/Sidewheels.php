@@ -46,6 +46,7 @@ class Sidewheels
         $this->initTaxonomies();
         $this->initAdmin();
         $this->routeTitle();
+        $this->addFilters();
     }
 
     /**
@@ -180,6 +181,16 @@ class Sidewheels
                 }
             }
         }
+    }
+
+    public function addFilters()
+    {
+        add_filter('pre_get_shortlink', function ($shortlink, $id, $context, $allow_slugs) {
+            if (get_query_var('sidewheels_route')) {
+                return true;
+            }
+            return $shortlink;
+        }, 10, 4);
     }
 
     public static function init(string $rootPath = null) : Sidewheels

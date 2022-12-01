@@ -54,7 +54,7 @@ if (! function_exists('sidewheelsTrigger404')) {
      */
     function sidewheelsTrigger404() : void
     {
-        add_action('template_include', function () {
+        add_filter('template_include', function () {
             global $wp, $wp_query;
             $wp_query->set_404();
             status_header(404);

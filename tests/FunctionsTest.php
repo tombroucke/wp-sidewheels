@@ -40,13 +40,13 @@ final class FunctionsTest extends TestCase
         $this->assertEquals(sidewheelsRoute($route, $replacements), 'https://example.com/orders/69/product/420/');
     }
 
-    public function testIfTemplateIncludeActionIsAdded()
+    public function testIfTemplateIncludeFilterIsAdded()
     {
-        \WP_Mock::expectActionAdded('template_include', function () {
+        \WP_Mock::expectFilterAdded('template_include', function () {
         }, 10, 1);
         sidewheelsTrigger404();
 
-        // The test is to see if a action is added
+        // The test is to see if a filter is added
         $this->assertTrue(true);
     }
 }

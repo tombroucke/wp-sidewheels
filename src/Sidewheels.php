@@ -144,7 +144,7 @@ class Sidewheels
     }
 
     /**
-     * Change route title if its set
+     * Change route title if it's set
      *
      * @return void
      */
@@ -156,7 +156,7 @@ class Sidewheels
                 return $title;
             }
             return sidewheelsReplaceRouteParameters($routeArray['title'], $route->parameters());
-        }, 10, 2);
+        }, 9, 2);
     }
     
     /**
@@ -201,9 +201,9 @@ class Sidewheels
     /**
      * Create routes, add roles & flush rewrite rules on installation
      */
-    public static function install() : void
+    public static function install($rootPath = null) : void
     {
-        $sidewheels = self::instance();
+        $sidewheels = self::instance($rootPath);
         $sidewheels->initPostTypes();
         $sidewheels->initRoles();
         flush_rewrite_rules();

@@ -57,7 +57,11 @@ class Router
         add_action('template_include', function ($template) {
             $route = $this->currentSidewheelsRoute();
             if ($route) {
-                $route->controller();
+                $routeTemplate = $route->controller();
+
+                if ($routeTemplate) {
+                    $template = $routeTemplate;
+                }
 
                 // Only continue rendering template when method is GET.
                 // POST, PUT & DELETE request shouldn't render out content

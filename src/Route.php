@@ -240,7 +240,7 @@ class Route
             }
         }
         
-        $regex = sprintf('^%s?$', implode('/', $pathParts));
+        $regex = sprintf('^%s/?$', implode('/', $pathParts));
         add_rewrite_rule($regex, $redirect, 'top');
     }
 

@@ -146,6 +146,20 @@ abstract class Controller
         );
 
         $functions[] = new TwigFunction(
+            'is_user_logged_in',
+            function () {
+                return is_user_logged_in();
+            }
+        );
+
+        $functions[] = new TwigFunction(
+            'get_current_user_id',
+            function () {
+                return get_current_user_id();
+            }
+        );
+
+        $functions[] = new TwigFunction(
             'home_url',
             function ($path = '/') {
                 return home_url($path);
@@ -243,6 +257,16 @@ abstract class Controller
         }
 
         return $functions;
+    }
+
+    /**
+     * Throw 404
+     *
+     * @return void
+     */
+    protected function throw404() : void
+    {
+        sidewheelsTrigger404();
     }
 
     /**

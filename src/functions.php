@@ -60,6 +60,6 @@ if (! function_exists('sidewheelsTrigger404')) {
             status_header(404);
             $template = locate_template('404.php');
             return $template;
-        });
+        }, 99999);
     }
 }

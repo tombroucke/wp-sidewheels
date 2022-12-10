@@ -24,6 +24,7 @@ abstract class Controller
      */
     final protected function render(string $template, ...$params) : void
     {
+        $params = apply_filters('sidewheels_twig_params', $params);
         do_action('sidewheel_before_template_full', $template, $params);
         $this->partial($template, $params);
         do_action('sidewheel_after_template_full', $template, $params);
@@ -39,6 +40,7 @@ abstract class Controller
      */
     final protected function renderShortcode(string $template, ...$params) : string
     {
+        $params = apply_filters('sidewheels_twig_params', $params);
         ob_start();
         do_action('sidewheel_before_template_shortcode', $template, $params);
         $this->partial($template, $params);
@@ -57,6 +59,7 @@ abstract class Controller
     {
         add_action('the_content', function () use ($template, $params) {
             if (is_main_query()) {
+                $params = apply_filters('sidewheels_twig_params', $params);
                 do_action('sidewheel_before_template_content', $template, $params);
                 $this->partial($template, $params);
                 do_action('sidewheel_after_template_content', $template, $params);

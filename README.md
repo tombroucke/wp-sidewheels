@@ -25,7 +25,7 @@ add_action('init', function(){
 use Otomaties\Sidewheels\Sidewheels;
 
 register_activation_hook(__FILE__, function(){
-	Sidewheels::install();
+	Sidewheels::install(dirname(__FILE__));
 });
 ```
 

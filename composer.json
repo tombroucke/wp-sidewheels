@@ -15,7 +15,8 @@
     "require-dev": {
         "10up/wp_mock": "^0.4.2",
         "phpunit/phpunit": "^9.5",
-        "szepeviktor/phpstan-wordpress": "^1.1"
+        "szepeviktor/phpstan-wordpress": "^1.1",
+        "spatie/ray": "^1.36"
     },
     "suggest": {
         "tombroucke/wp-models": "Interact with posts, terms & users in an eloquent way"

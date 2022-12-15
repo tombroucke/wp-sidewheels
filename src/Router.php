@@ -2,6 +2,8 @@
 
 namespace Otomaties\Sidewheels;
 
+use Otomaties\Sidewheels\Exceptions\InvalidMethodException;
+
 /**
  * The router object holds all registered routes, and will try to match requests to routes
  */
@@ -80,7 +82,10 @@ class Router
      */
     public function currentSidewheelsRoute() : ?Route
     {
-        $route = $this->matchingRoute(get_query_var('sidewheels_route'), $_SERVER['REQUEST_METHOD']);
+        $route = $this->matchingRoute([
+            'path' => get_query_var('sidewheels_route'),
+            'method' => $_SERVER['REQUEST_METHOD']
+        ]);
         if (!$route) {
             return null;
         }
@@ -117,7 +122,7 @@ class Router
             $wp_query->is_home = false;
             $wp_query->is_archive = false;
             $wp_query->is_category = false;
-            $wp->query = array();
+            $wp->query = [];
             $wp_query->query_vars['error'] = '';
             $wp_query->is_404 = false;
         
@@ -129,14 +134,14 @@ class Router
             $wp_query->is_singular = 1;
         
             $wp_query->post = $pageObject;
-            $wp_query->posts = array($pageObject);
+            $wp_query->posts = [$pageObject];
             $wp_query->queried_object = $pageObject;
             $wp_query->queried_object_id = $pageObject->ID;
             $wp_query->current_post = $pageObject->ID;
             $wp_query->post_count = 1;
             unset($wp_query->query['error']);
         
-            return array($pageObject);
+            return [$pageObject];
         });
     }
 
@@ -152,18 +157,30 @@ class Router
     }
 
     /**
-     * Find a route with matching path & method
+     * Find a route that matches the given arguments
      *
-     * @param String $path
-     * @param String $method
-     * @return Route
+     * @param array $arguments Can contain path, method, controller, pageObject, hasAccess
+     * @return Route|null
      */
-    public function matchingRoute(string $path, string $method) : ?Route
+    public function matchingRoute(array $arguments) : ?Route
     {
-        foreach ($this->routes as $route) {
-            if ($route->method() == $method && $route->path() == $path) {
-                return $route;
+        $matchingRoutes = array_filter($this->routes, function ($route) use ($arguments) {
+            $matches = [];
+            $validMethods = ['path', 'method', 'callback', 'capability', 'title', 'parameters'];
+            foreach ($arguments as $key => $value) {
+                if (in_array($key, $validMethods)) {
+                    $matches[] = $route->$key() == $value;
+                } else {
+                    throw new InvalidMethodException(
+                        sprintf('Method "%s" is not a valid method on Route object', $key),
+                        1
+                    );
+                }
             }
+            return !in_array(false, $matches);
+        });
+        if (!empty($matchingRoutes)) {
+            return array_shift($matchingRoutes);
         }
         return null;
     }

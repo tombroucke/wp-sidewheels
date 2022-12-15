@@ -1,7 +1,9 @@
 <?php declare(strict_types=1);
 
-use Otomaties\Sidewheels\Config;
+use Otomaties\Sidewheels\Route;
 use PHPUnit\Framework\TestCase;
+use Otomaties\Sidewheels\Config;
+use Otomaties\Sidewheels\Router;
 
 final class ConfigTest extends TestCase
 {
@@ -63,16 +65,20 @@ final class ConfigTest extends TestCase
 
     public function testIfRouteIsFound()
     {
-        $route = [
+        
+        $routeArray = [
             'path' => 'dash/orders',
             'callback' => 'testCallback',
             'capability' => 'manage_options',
             'method' => 'GET',
             'title' => 'Orders',
         ];
+
+        $route = Route::get('dash/orders', 'testCallback', 'GET')->require('manage_options')->setTitle('Orders');
+        Router::instance()->register($route);
         
-        $this->assertEquals($this->config->findRouteBy('path', 'dash/orders'), $route);
-        $this->assertEquals($this->config->findRouteBy('callback', 'testCallback'), $route);
-        $this->assertEquals($this->config->findRouteBy('title', 'Orders'), $route);
+        $this->assertEquals($this->config->findRouteBy('path', 'dash/orders'), $routeArray);
+        $this->assertEquals($this->config->findRouteBy('callback', 'testCallback'), $routeArray);
+        $this->assertEquals($this->config->findRouteBy('title', 'Orders'), $routeArray);
     }
 }

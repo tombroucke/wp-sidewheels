@@ -88,7 +88,14 @@ class Config
      */
     public function routes() : array
     {
-        return $this->config['routes'];
+        $routes = $this->config['routes'];
+        foreach ($routes as $key => $route) {
+            if (!isset($route['method'])) {
+                $routes[$key]['method'] = 'GET';
+            }
+            $routes[$key]['method'] = strtoupper($routes[$key]['method']);
+        }
+        return $routes;
     }
 
     /**
@@ -121,20 +128,27 @@ class Config
         return $this->config['roles'];
     }
 
-    /**
-     * Find route in config by key => value
-     *
-     * @param string $key
-     * @param string $value
-     * @return array|null
-     */
-    public function findRouteBy($key, $value) : ?array
+    public function findRouteBy(string $key, mixed $value) : ?array
     {
-        $routes = $this->routes();
-        $routeKey = array_search($value, array_column($routes, $key));
-        if ($routeKey !== false) {
-            return $routes[$routeKey];
+        trigger_error(
+            'Method ' . __METHOD__ . ' is deprecated. Use Router::instance()->matchingRoute() instead.',
+            E_USER_DEPRECATED
+        );
+
+        $router = Router::instance();
+        $route = $router->matchingRoute([
+            $key => $value,
+        ]);
+        if (!$route) {
+            return null;
         }
-        return null;
+
+        return [
+            'path'      => $route->path(),
+            'callback'  => $route->callback(),
+            'capability'  => $route->capability(),
+            'method'    => $route->method(),
+            'title'     => $route->title(),
+        ];
     }
 }

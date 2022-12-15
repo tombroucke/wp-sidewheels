@@ -1,8 +1,9 @@
 <?php declare(strict_types=1);
 
 use Otomaties\Sidewheels\Route;
-use Otomaties\Sidewheels\Router;
 use PHPUnit\Framework\TestCase;
+use Otomaties\Sidewheels\Router;
+use Otomaties\Sidewheels\Exceptions\InvalidMethodException;
 
 
 final class RouterTest extends TestCase
@@ -44,10 +45,26 @@ final class RouterTest extends TestCase
 
     public function testIfRouteCanBeFound() {
         // Order is important. No routes have been added at this point
-        $this->assertNull($this->router->matchingRoute('orders', 'GET'));
-        $route = new Route('orders', 'callback', 'GET');
+        $this->assertNull($this->router->matchingRoute([
+            'path' => 'orders',
+            'method' => 'GET'
+        ]));
+
+        $route = Route::get('orders', 'callback');
         Router::instance()->register($route);
-        $this->assertEquals($this->router->matchingRoute('orders', 'GET'), $route);
+        $this->assertEquals($this->router->matchingRoute([
+            'path' => 'orders',
+            'method' => 'GET'
+        ]), $route);
+    }
+
+    public function testIfExceptionIsThrownWhenRouteIsNotFound() {
+        $this->expectException(InvalidMethodException::class);
+        $this->router->matchingRoute([
+            'path' => 'orders',
+            'method' => 'GET',
+            'unexisting_key' => 'unexisting_value'
+        ]);
     }
 
     public function testCurrentSidewheelsRoute() {

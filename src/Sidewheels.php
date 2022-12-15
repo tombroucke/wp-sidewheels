@@ -45,7 +45,6 @@ class Sidewheels
         $this->initPostTypes();
         $this->initTaxonomies();
         $this->initAdmin();
-        $this->routeTitle();
         $this->addFilters();
     }
 
@@ -63,6 +62,7 @@ class Sidewheels
                 $callback   = $route['callback'];
                 $capability = isset($route['capability']) ? $route['capability'] : null;
                 $method     = isset($route['method']) ? $route['method'] : 'GET';
+                $title      = isset($route['title']) ? $route['title'] : null;
 
                 switch ($method) {
                     case 'POST':
@@ -77,6 +77,10 @@ class Sidewheels
                     default:
                         $route = Route::get($path, $callback);
                         break;
+                }
+
+                if ($title) {
+                    $route->setTitle($title);
                 }
 
                 Router::instance()->register($route);
@@ -141,22 +145,6 @@ class Sidewheels
     public function config() : Config
     {
         return $this->config;
-    }
-
-    /**
-     * Change route title if it's set
-     *
-     * @return void
-     */
-    private function routeTitle()
-    {
-        add_filter('sidewheels_route_title', function ($title, $route) {
-            $routeArray = $this->config()->findRouteBy('path', $route->path());
-            if (!$routeArray || !isset($routeArray['title'])) {
-                return $title;
-            }
-            return sidewheelsReplaceRouteParameters($routeArray['title'], $route->parameters());
-        }, 9, 2);
     }
     
     /**

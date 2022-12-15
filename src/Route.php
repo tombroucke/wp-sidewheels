@@ -213,7 +213,10 @@ class Route
      */
     public function title() : string
     {
-        return apply_filters('sidewheels_route_title', $this->title, $this);
+        return sidewheelsReplaceRouteParameters(
+            apply_filters('sidewheels_route_title', $this->title, $this),
+            $this->parameters()
+        );
     }
 
     /**
@@ -264,11 +267,12 @@ class Route
      * Require the user to be authenticated
      *
      * @param string $capability
-     * @return void
+     * @return Route
      */
-    public function require(string $capability) : void
+    public function require(string $capability) : Route
     {
         $this->capability = $capability;
+        return $this;
     }
 
     /**

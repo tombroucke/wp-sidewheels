@@ -31,12 +31,12 @@ final class RouteTest extends TestCase
     {
         global $rewrite_rules;
         new Route('orders', 'callback', 'GET');
-        $this->assertContains(['^orders?$', 'index.php?sidewheels_route=orders', 'top'], $rewrite_rules);
+        $this->assertContains(['^orders/?$', 'index.php?sidewheels_route=orders', 'top'], $rewrite_rules);
 
         \WP_Mock::expectFilterAdded('query_vars', function () {
         }, 10, 1);
         new Route('orders/{order_id}', 'callback', 'GET');
-        $this->assertContains(['^orders/([0-9]+)?$', 'index.php?sidewheels_route=orders/{order_id}&sidewheels_order_id=$matches[1]', 'top'], $rewrite_rules);
+        $this->assertContains(['^orders/([0-9]+)/?$', 'index.php?sidewheels_route=orders/{order_id}&sidewheels_order_id=$matches[1]', 'top'], $rewrite_rules);
 
     }
 

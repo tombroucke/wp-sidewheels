@@ -43,7 +43,7 @@ final class FunctionsTest extends TestCase
     public function testIfTemplateIncludeFilterIsAdded()
     {
         \WP_Mock::expectFilterAdded('template_include', function () {
-        }, 10, 1);
+        }, 99999, 1);
         sidewheelsTrigger404();
 
         // The test is to see if a filter is added

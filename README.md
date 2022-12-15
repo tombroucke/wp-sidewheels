@@ -142,8 +142,8 @@ class Admin extends Controller
 {
     public function index()
     {
-        $this->route()->setTitle('Dashboard'); // Optional
-        $this->render('admin/dash.html', [
+        $this->route()->setTitle('Dashboard'); // Optional, only for rendering complete pages
+        $this->render('admin/dash.html', [ // render() : complete page, renderContent() : render during the_content(), renderShortcode() : returns html instead of rendering
             'website' => 'https://tombroucke.be'
         ]);
     }
@@ -233,62 +233,4 @@ You can add routes outside of the config file:
 
 ```php
 Route::get('public-page', 'Namespace\Controllers\Frontend@index');
-```
-
-## Abstracts
-
-There are 2 additional abstract classes which your models can extend: Post & User. These classes add generic functionality for posts and users.
-
-### User
-```php
-class Customer extends User 
-{
-    public static function role() : string
-    {
-        return 'customer';
-    }
-}
-
-$customer = new Customer(5); // Pass user id or WP_User object
-
-$customer = Customer::insert([
-    'user_pass' => '03071985',
-    'user_login' => 'marty',
-    'user_email' => 'marty@mcfly.com'
-]);
-
-$customer->getId();
-$customer->name();
-$customer->email();
-...
-
-```
-
-```php
-class Movie extends Post 
-{
-    public static function postType() : string
-    {
-        return 'movie';
-    }
-}
-
-$movie = new Movie(55); // Movie id
-
-$movie = Movie::find([
-	'meta_query' => [
-		[
-			'key' => 'director',
-			'value' => 'Robert Zemeckis'
-		]
-	]
-]);
-
-$movie->get('actors'); // get_post_meta(55, 'actors', true);
-$movie->add('actors', 'Michael J. Fox'); // add_post_meta(55, 'actors', true);
-$movie->set('rating', 5); // update_post_meta(55, 'rating', 5);
-$movie->getField('cover'); // get_field('cover', 55)
-$movie->title(); // get_the_title(55)
-...
-
 ```

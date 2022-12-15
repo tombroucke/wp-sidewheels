@@ -96,7 +96,6 @@ abstract class Controller
         foreach (apply_filters('sidewheels_twig_filters', []) as $key => $filter) {
             $twig->addFilter($filter);
         }
-        
         do_action('sidewheel_before_template', $template, $params);
         echo $twig->render($template, $params);
         do_action('sidewheel_after_template', $template, $params);

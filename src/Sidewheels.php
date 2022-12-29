@@ -57,12 +57,17 @@ class Sidewheels
     {
         // Custom template for sidewheels routes
         add_filter('template_include', function ($template) {
-            $sidewheelsTemplatePaths = [
-                locate_template('sidewheels.php'),
-                $this->config()->templatePath() . '/sidewheels.php',
-                dirname(__FILE__, 2) . '/templates/sidewheels.php',
-            ];
-            if (Router::instance()->currentSidewheelsRoute()) {
+            $currentSidewheelsRoute = Router::instance()->currentSidewheelsRoute();
+            if ($currentSidewheelsRoute) {
+                $sidewheelsTemplatePaths = apply_filters(
+                    'sidewheels_template_paths',
+                    [
+                        locate_template('sidewheels.php'),
+                        $this->config()->templatePath() . '/sidewheels.php',
+                        dirname(__FILE__, 2) . '/templates/sidewheels.php',
+                    ],
+                    $currentSidewheelsRoute
+                );
                 $foundTemplate = null;
                 foreach ($sidewheelsTemplatePaths as $path) {
                     if (file_exists($path)) {
@@ -74,7 +79,7 @@ class Sidewheels
             }
             return $template;
         });
-        
+
         $routes = $this->config()->routes();
         if (!empty($routes)) {
             foreach ($routes as $route) {

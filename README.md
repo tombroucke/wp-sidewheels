@@ -178,6 +178,7 @@ This package uses twig as it's templating engine. You can pass variable to your 
 </body>
 </html>
 ```
+By default, the very basic vendor/tombroucke/wp-sidewheels/templates/sidewheels.php template will be loaded for all endpoints. You can add a sidewheels.php template in your views directory, or in your theme root directory. You can use the `sidewheels_template_paths` filter to load a custom template based on a specific route or other logic.
 
 ## Filters
 

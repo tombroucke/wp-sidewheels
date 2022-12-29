@@ -55,6 +55,26 @@ class Sidewheels
      */
     private function initRoutes() : void
     {
+        // Custom template for sidewheels routes
+        add_filter('template_include', function ($template) {
+            $sidewheelsTemplatePaths = [
+                locate_template('sidewheels.php'),
+                $this->config()->templatePath() . '/sidewheels.php',
+                dirname(__FILE__, 2) . '/templates/sidewheels.php',
+            ];
+            if (Router::instance()->currentSidewheelsRoute()) {
+                $foundTemplate = null;
+                foreach ($sidewheelsTemplatePaths as $path) {
+                    if (file_exists($path)) {
+                        $foundTemplate = $path;
+                        break;
+                    }
+                }
+                $template = $foundTemplate ?? $template;
+            }
+            return $template;
+        });
+        
         $routes = $this->config()->routes();
         if (!empty($routes)) {
             foreach ($routes as $route) {

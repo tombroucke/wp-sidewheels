@@ -117,7 +117,6 @@ class Router
             $pageObject = $route->pageObject(sidewheelsRoute($route->path(), $route->parameters()));
             
             // update wp_query properties to simulate a found page
-            // $wp_query->is_page = true; // Triggers Warning: Attempt to read property "post_parent" on null error
             $wp_query->is_singular = true;
             $wp_query->is_home = false;
             $wp_query->is_archive = false;

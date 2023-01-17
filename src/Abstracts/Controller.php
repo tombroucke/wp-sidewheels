@@ -285,9 +285,9 @@ abstract class Controller
     /**
      * Get route which triggered this controller
      *
-     * @return Route
+     * @return Route|null
      */
-    public function route() : Route
+    public function route() : ?Route
     {
         return $this->route;
     }

@@ -56,7 +56,7 @@ class Sidewheels {
 
 		$routes = new Routes( $this->settings() );
 		$this->loader->add_filter( 'query_vars', $routes, 'custom_query_vars' );
-		$this->loader->add_action( 'init', $routes, 'create' );
+		$this->loader->add_action( 'init', $routes, 'create', 11 );
 
 	}
 

@@ -21,6 +21,13 @@ class Url {
 	private $path;
 
 	/**
+	 * Replacements for dynamic segments
+	 *
+	 * @var array
+	 */
+	private $replacements;
+
+	/**
 	 * Define settings & path
 	 *
 	 * @param array    $path     Desired path.

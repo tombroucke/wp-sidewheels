@@ -1,16 +1,17 @@
 {
-    "name": "tombroucke/wp-sidewheels",
-    "description": "Framework for developing application in your WP install.",
-    "autoload": {
-        "psr-4": {
-            "Otomaties\\WP_Sidewheels\\": "src/"
-        },
-        "files": [
-            "src/functions.php"
-        ]
+  "name": "tombroucke/wp-sidewheels",
+  "description": "Framework for developing application in your WP install.",
+  "autoload": {
+    "psr-4": {
+      "Otomaties\\WP_Sidewheels\\": "src/"
     },
-    "require": {
-        "twig/twig": "^3.0",
-        "johnbillion/extended-cpts": "^5.0"
-    }
+    "files": [
+      "src/functions.php"
+    ]
+  },
+  "require": {
+    "php": ">=7.4",
+    "twig/twig": "^3.0",
+    "johnbillion/extended-cpts": "^5.0"
+  }
 }

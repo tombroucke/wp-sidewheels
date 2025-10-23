@@ -19,8 +19,8 @@ if ( ! function_exists( 'wp_sidewheels_current_url' ) ) {
 	 */
 	function wp_sidewheels_current_url() {
 		$protocol    = isset( $_SERVER['HTTPS'] ) ? 'https' : 'http';
-		$host        = filter_input( INPUT_SERVER, 'HTTP_HOST', FILTER_SANITIZE_STRING );
-		$request_uri = filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_STRING );
+		$host = $_SERVER['HTTP_HOST'];
+		$request_uri = $_SERVER['REQUEST_URI'];
 		return $protocol . '://' . $host . $request_uri;
 	}
 }
